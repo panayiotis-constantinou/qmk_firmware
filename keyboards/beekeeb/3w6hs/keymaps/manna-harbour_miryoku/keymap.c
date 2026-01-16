@@ -15,3 +15,18 @@
  */
 
 // generated from users/manna-harbour_miryoku/miryoku.org  -*- buffer-read-only: t -*-
+
+#include "mouse_jiggler.h"
+
+// Hook into process_record_user to handle MJ_TOGG keycode
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    if (!process_record_mouse_jiggler(keycode, record)) {
+        return false;
+    }
+    return true;
+}
+
+// Hook into housekeeping_task_user to perform the jiggling
+void housekeeping_task_user(void) {
+    housekeeping_task_mouse_jiggler();
+}
