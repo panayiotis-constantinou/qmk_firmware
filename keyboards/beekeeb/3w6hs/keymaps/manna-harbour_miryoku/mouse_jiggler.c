@@ -7,7 +7,7 @@
 
 static bool     mouse_jiggler_enabled = false;
 static uint16_t mouse_jiggler_timer   = 0;
-static int8_t   jiggle_direction      = 1;
+static int8_t   jiggle_direction      = 3;
 
 #ifndef MOUSE_JIGGLER_INTERVAL_MS
 #    define MOUSE_JIGGLER_INTERVAL_MS 1000
