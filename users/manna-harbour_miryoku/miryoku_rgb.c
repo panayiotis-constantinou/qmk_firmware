@@ -31,6 +31,7 @@ RGB hsv_to_rgb_with_value(HSV hsv) {
 // ── Per-layer color setter ───────────────────────────────────────────────────
 
 void set_layer_color_miryoku(int layer, const uint8_t *led_map) {
+    rgb_matrix_set_color_all(0, 0, 0);
     for (int i = 0; i < MIRYOKU_KEY_COUNT; i++) {
         HSV hsv = {
             .h = pgm_read_byte(&miryoku_ledmap[layer][i][0]),
