@@ -16,3 +16,4 @@ include users/manna-harbour_miryoku/post_rules.mk
 OS_DETECTION_ENABLE = yes
 OS_DETECTION_SINGLE_REPORT = yes
 SRC += users/manna-harbour_miryoku/mouse_jiggler.c
+SRC += users/manna-harbour_miryoku/miryoku_rgb.c
