@@ -6,6 +6,22 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/qmk/qmk_firmware.svg)](https://github.com/qmk/qmk_firmware/pulse/monthly)
 [![GitHub forks](https://img.shields.io/github/forks/qmk/qmk_firmware.svg?style=social&label=Fork)](https://github.com/qmk/qmk_firmware/)
 
+## Fork Purpose
+
+This is my personal fork of QMK for maintaining Miryoku-based keymaps and firmware configuration for my Beekeeb 3W6HS, ZSA Moonlander, Planck EZ, and other personal boards.
+
+Upstream QMK is the canonical source for project ownership, releases, and documentation:
+- [qmk/qmk_firmware](https://github.com/qmk/qmk_firmware)
+- [docs.qmk.fm](https://docs.qmk.fm)
+
+I keep this fork current by rebasing on upstream:
+
+```bash
+git fetch upstream
+git checkout main
+git rebase upstream/main
+```
+
 This is a keyboard firmware based on the [tmk\_keyboard firmware](https://github.com/tmk/tmk_keyboard) with some useful features for Atmel AVR and ARM controllers, and more specifically, the [OLKB product line](https://olkb.com), the [ErgoDox EZ](https://ergodox-ez.com) keyboard, and the Clueboard product line.
 
 ## Documentation
@@ -21,6 +37,9 @@ You can request changes by making a fork and opening a [pull request](https://gi
 * [Planck](/keyboards/planck/)
 * [Preonic](/keyboards/preonic/)
 * [ErgoDox EZ](/keyboards/ergodox_ez/)
+* [Moonlander](/keyboards/moonlander/)
+* [Planck EZ](/keyboards/planck/ez)
+* [Beekeeb 3W6HS](/keyboards/beekeeb/3w6hs/)
 * [Clueboard](/keyboards/clueboard/)
 * [Cluepad](/keyboards/clueboard/17/)
 * [Atreus](/keyboards/atreus/)
