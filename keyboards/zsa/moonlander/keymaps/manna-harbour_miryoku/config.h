@@ -19,8 +19,6 @@ LAYOUT_moonlander( \
   KC_NO, KC_NO, KC_NO,                                                 KC_NO, KC_NO, KC_NO                       \
 )
 
-#undef QUICK_TAP_TERM
-#define QUICK_TAP_TERM 0
 #undef RGB_MATRIX_TIMEOUT
 #define RGB_MATRIX_TIMEOUT 600000
 #define USB_SUSPEND_WAKEUP_DELAY 0

@@ -17,8 +17,6 @@ LAYOUT_planck_grid( \
   KC_NO, KC_NO, K32,   K33,   K34,   KC_NO, KC_NO, K35,   K36,   K37,   KC_NO, KC_NO \
 )
 
-#undef QUICK_TAP_TERM
-#define QUICK_TAP_TERM 0
 #undef RGB_MATRIX_TIMEOUT
 #define RGB_MATRIX_TIMEOUT 900000
 #define USB_SUSPEND_WAKEUP_DELAY 0
