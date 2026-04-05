@@ -12,7 +12,7 @@ static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
 //  K20  K21  K22  K23  K24    K25  K26  K27  K28  K29
      24,  25,  26,  27,  28,   31,  32,  33,  34,  35,
 //  K32  K33  K34    K35  K36  K37
-     38,  45,  46,   43,  44,  39,
+     38,  39,  40,   42,  43,  44,
 };
 
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
