@@ -15,6 +15,17 @@ static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
      14,  19,  24,   60,  55,  50,
 };
 
+// Free (non-miryoku) LED indices -> moonlander LED index
+// Both halves: left indices first, right mirrors second (right = left + 36)
+static const uint8_t free_to_led[] = {
+     4,  // MIRYOKU_FREE_CAPSLOCK    (left: col1 extra row)
+     9,  // MIRYOKU_FREE_SCROLLLOCK  (left: col3 area extra)
+    20,  // MIRYOKU_FREE_JIGGLER     (left: extra thumb key)
+    40,  // MIRYOKU_FREE_CAPSLOCK    (right mirror)
+    45,  // MIRYOKU_FREE_SCROLLLOCK  (right mirror)
+    56,  // MIRYOKU_FREE_JIGGLER     (right mirror)
+};
+
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 
 bool rgb_matrix_indicators_user(void) {
@@ -28,17 +39,6 @@ bool rgb_matrix_indicators_user(void) {
     } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
-    if (capslock_active && biton32(layer_state) == 4) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_CAPSLOCK});
-        rgb_matrix_set_color(miryoku_to_led[MIRYOKU_LED_CAPSLOCK], rgb.r, rgb.g, rgb.b);
-    }
-    if (scrolllock_active && biton32(layer_state) == 9) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_SCROLLLOCK});
-        rgb_matrix_set_color(miryoku_to_led[MIRYOKU_LED_SCROLLLOCK], rgb.r, rgb.g, rgb.b);
-    }
-    if (mouse_jiggler_is_enabled()) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_JIGGLER});
-        rgb_matrix_set_color(miryoku_to_led[MIRYOKU_LED_JIGGLER], rgb.r, rgb.g, rgb.b);
-    }
+    set_free_led_indicators(free_to_led, sizeof(free_to_led));
     return true;
 }

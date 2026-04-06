@@ -18,10 +18,11 @@
 // 30-32: K32-K34  (thumbs left)
 // 33-35: K35-K37  (thumbs right)
 
-// Which miryoku key carries each indicator
-#define MIRYOKU_LED_CAPSLOCK   15   // K15: right home row inner
-#define MIRYOKU_LED_SCROLLLOCK 14   // K14: left home row inner
-#define MIRYOKU_LED_JIGGLER    25   // K25: right bottom row first
+// Indices into each keyboard's free_to_led[] array
+#define MIRYOKU_FREE_CAPSLOCK    0
+#define MIRYOKU_FREE_SCROLLLOCK  1
+#define MIRYOKU_FREE_JIGGLER     2
+#define MIRYOKU_FREE_LED_COUNT   3   // per half; split keyboards may double this
 
 // Indicator HSV colors
 #define MIRYOKU_HSV_CAPSLOCK    249, 239, 228
@@ -35,6 +36,7 @@ extern bool scrolllock_active;
 RGB  hsv_to_rgb_with_value(HSV hsv);
 bool miryoku_led_update_user(led_t led_state);
 void set_layer_color_miryoku(int layer, const uint8_t *led_map);
+void set_free_led_indicators(const uint8_t *free_leds, uint8_t count);
 
 // ledmap[layer][miryoku_key_index][HSV]
 // layers: 0=U_BASE, 4=U_NAV, 5=U_MOUSE, 6=U_MEDIA, 7=U_NUM, 8=U_SYM, 9=U_FUN
