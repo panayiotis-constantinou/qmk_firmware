@@ -31,6 +31,8 @@ static const uint8_t free_to_led[] = {
 // bottom; the host connection on the right's spare key beside K.
 static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
 #define HERDR_CONNECTION_LED 64
+// Slot sort mode on the right's innermost number-row key.
+#define HERDR_SORT_LED 65
 
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 
@@ -38,6 +40,7 @@ bool rgb_matrix_indicators_user(void) {
     if (miryoku_leds_idle()) {
         rgb_matrix_set_color_all(0, 0, 0);
         herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
+        herdr_render_sort_mode(HERDR_SORT_LED);
         return true;
     }
     if (!keyboard_config.disable_layer_led) {
@@ -55,6 +58,7 @@ bool rgb_matrix_indicators_user(void) {
     }
     set_free_led_indicators(free_to_led, sizeof(free_to_led));
     herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
+    herdr_render_sort_mode(HERDR_SORT_LED);
     herdr_render_dropped_press();
     return true;
 }

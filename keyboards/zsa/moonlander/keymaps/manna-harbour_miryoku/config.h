@@ -20,6 +20,10 @@ LAYOUT_moonlander( \
 )
 
 #undef RGB_MATRIX_TIMEOUT
+
+// Keep the small LEDs out of layer indication: Miryoku's layer numbers don't
+// match the stock three-LED scheme, and the sort mode lives on RGB LED 65.
+#define MOONLANDER_USER_LEDS
 #define USB_SUSPEND_WAKEUP_DELAY 0
 #undef MOUSEKEY_INTERVAL
 #define MOUSEKEY_INTERVAL 12

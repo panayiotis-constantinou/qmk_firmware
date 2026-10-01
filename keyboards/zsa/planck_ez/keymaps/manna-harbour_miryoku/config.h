@@ -19,6 +19,10 @@ LAYOUT_planck_grid( \
 
 #undef RGB_MATRIX_TIMEOUT
 
+// Keep the small LEDs below the space bar out of layer indication: Miryoku's
+// layer numbers don't match the stock scheme, and the sort mode is RGB LED 37.
+#define PLANCK_EZ_USER_LEDS
+
 // Media layer: double-tap Q to enter the bootloader; B restores layer colours;
 // J toggles LEDs; L/U cycle effects; Y/' adjust speed.
 #define RGB_LAYER_COLORS QK_USER_0

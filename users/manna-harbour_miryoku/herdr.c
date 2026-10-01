@@ -20,6 +20,7 @@
 #define HERDR_CC_SLOT_FIRST 112
 #define HERDR_CC_ECHO       116
 #define HERDR_CC_RISK       117
+#define HERDR_CC_SORT       118 // both ways: 0 Herdr priority, 1 grouped
 #define HERDR_CC_ACTIVE     119 // bridge to keyboard: 1 active, 0 standby
 #define HERDR_PROTOCOL      3
 
@@ -36,7 +37,8 @@
 #define HERDR_VELOCITY_TAP  127
 
 // eeconfig user bits 0-1 hold the OS override, and bits 2 and 4 held the
-// retired spinner and sort toggles; a zero bit keeps sounds on.
+// retired spinner and sort toggles; a zero bit keeps sounds on.  The sort
+// mode now belongs to Herdr and is only mirrored in RAM.
 #define HERDR_EE_SOUNDS_OFF    (1 << 3)
 #define HERDR_EE_MASK          HERDR_EE_SOUNDS_OFF
 
@@ -82,6 +84,8 @@ static uint8_t  herdr_risk;
 static uint32_t herdr_last_seen;
 static bool     herdr_seen;
 static bool     herdr_standby;
+static bool     herdr_grouped;
+static bool     herdr_sort_known;
 static uint32_t herdr_last_chime;
 static bool     herdr_chimed;
 static uint16_t herdr_armed_key = KC_NO;
@@ -95,12 +99,15 @@ static uint32_t herdr_dropped_time;
 static float herdr_connected_song[][2] = {{NOTE_E6, 8}, {NOTE_A6, 8}};
 static float herdr_done_song[][2]      = {{NOTE_E6, 4}, {NOTE_A6, 4}, {NOTE_E7, 8}};
 static float herdr_blocked_song[][2]   = {{NOTE_A5, 8}, {NOTE_A5, 8}};
+static float herdr_priority_song[][2]  = {{NOTE_A4, 4}, {NOTE_E4, 4}};
+static float herdr_grouped_song[][2]   = {{NOTE_E6, 4}, {NOTE_A6, 4}};
 #    define HERDR_PLAY(song) PLAY_SONG(song)
 #else
 #    define HERDR_PLAY(song)
 #endif
 
 bool herdr_sounds_are_enabled(void) { return !(herdr_settings & HERDR_EE_SOUNDS_OFF); }
+bool herdr_sort_is_grouped(void) { return herdr_grouped; }
 
 bool herdr_is_connected(void) {
     return herdr_seen && timer_elapsed32(herdr_last_seen) <= HERDR_TIMEOUT_MS;
@@ -144,8 +151,10 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
             return;
         }
         if (!herdr_is_connected()) {
-            // A bridge that never sends CC 119 must not inherit an old standby.
-            herdr_standby = false;
+            // A bridge that never sends CC 119 must not inherit an old standby,
+            // and its first sort report is not a change to cue.
+            herdr_standby    = false;
+            herdr_sort_known = false;
             if (herdr_sounds_are_enabled()) {
                 HERDR_PLAY(herdr_connected_song);
             }
@@ -169,6 +178,18 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         herdr_risk = value <= HERDR_RISK_HIGH ? value : HERDR_RISK_UNKNOWN;
     } else if (number == HERDR_CC_ACTIVE) {
         herdr_standby = value == 0;
+    } else if (number == HERDR_CC_SORT && value <= 1) {
+        // Herdr owns the mode, set from any board or its own panel; the active
+        // board cues each confirmed change.
+        if (herdr_sort_known && value != herdr_grouped && !herdr_standby && herdr_sounds_are_enabled()) {
+            if (value) {
+                HERDR_PLAY(herdr_grouped_song);
+            } else {
+                HERDR_PLAY(herdr_priority_song);
+            }
+        }
+        herdr_grouped    = value;
+        herdr_sort_known = true;
     }
 }
 
@@ -176,6 +197,9 @@ void herdr_init(void) {
     herdr_settings = eeconfig_read_user() & HERDR_EE_MASK;
     midi_register_cc_callback(&midi_device, herdr_midi_cc);
 }
+
+// The host's sort mode, once it has reported one since connecting.
+static bool herdr_sort_is_known(void) { return herdr_sort_known && herdr_is_connected(); }
 
 static void herdr_toggle_setting(uint32_t bit) {
     herdr_settings ^= bit;
@@ -207,6 +231,17 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     if (keycode == AG_SOUND_TOGGLE) {
         if (record->event.pressed) {
             herdr_toggle_setting(HERDR_EE_SOUNDS_OFF);
+        }
+        return false;
+    }
+    if (keycode == AG_SORT_TOGGLE) {
+        if (record->event.pressed) {
+            herdr_flag_dropped(record);
+            // Ask Herdr for the other mode; the LEDs and cue wait for its
+            // answer.  A standby board's request only claims it.
+            if (herdr_sort_is_known()) {
+                midi_send_cc(&midi_device, HERDR_MIDI_CHANNEL, HERDR_CC_SORT, !herdr_grouped);
+            }
         }
         return false;
     }
@@ -337,6 +372,17 @@ void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
             herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_reasons[i], herdr_colors[i]);
         }
     }
+}
+
+// One RGB LED shows Herdr's panel sort mode: green for priority, peach for
+// grouped, both hues clear of the agent and connection colors.  Dark until the
+// host reports its mode and once the LEDs idle, like the connection LED.
+void herdr_render_sort_mode(uint8_t led) {
+    rgb_matrix_set_color(led, 0, 0, 0);
+    if (!herdr_sort_is_known() || miryoku_leds_idle()) {
+        return;
+    }
+    set_led_hsv(led, (HSV){herdr_grouped ? CTP_PEACH : CTP_GREEN, MIRYOKU_CTP_SAT, 64});
 }
 
 void herdr_render_dropped_press(void) {

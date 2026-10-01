@@ -42,9 +42,11 @@ uint8_t herdr_slot_state(uint8_t slot);
 uint8_t herdr_accept_risk(void);
 bool    herdr_is_armed(uint16_t keycode);
 bool    herdr_sounds_are_enabled(void);
+bool    herdr_sort_is_grouped(void);
 
 #ifdef RGB_MATRIX_ENABLE
 void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds);
+void herdr_render_sort_mode(uint8_t led);
 void herdr_render_dropped_press(void);
 #endif
 

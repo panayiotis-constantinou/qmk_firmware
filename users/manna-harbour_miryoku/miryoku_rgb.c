@@ -84,6 +84,7 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     rgb = hsv_to_rgb_with_value((HSV){hue, MIRYOKU_CTP_SAT, 180}); \
     rgb_matrix_set_color(led_map[index], rgb.r, rgb.g, rgb.b); \
 } while (0)
+    SET_AGENT_KEY( 0, herdr_sort_is_grouped() ? CTP_PEACH : CTP_GREEN); // Herdr sort mode
     SET_AGENT_KEY( 6, CTP_GREEN);    // new workspace
     SET_AGENT_KEY( 7, CTP_GREEN);    // new tab
     SET_AGENT_KEY(11, CTP_PEACH);    // clear
