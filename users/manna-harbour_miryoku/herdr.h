@@ -21,6 +21,7 @@ bool    process_record_herdr(uint16_t keycode, keyrecord_t *record);
 
 bool    herdr_is_connected(void);
 uint8_t herdr_slot_state(uint8_t slot);
+bool    herdr_is_armed(uint16_t keycode);
 bool    herdr_sounds_are_enabled(void);
 
 #ifdef RGB_MATRIX_ENABLE

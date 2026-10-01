@@ -91,6 +91,17 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     SET_AGENT_KEY(35, CTP_MAROON);   // delete
 #undef SET_AGENT_KEY
 
+    // Keys waiting for their confirming tap light Catppuccin text.
+    static const uint16_t cued_keys[][2] = {
+        {AG_REJECT, 12}, {AG_CLEAR, 11},
+    };
+    rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_TEXT});
+    for (uint8_t i = 0; i < ARRAY_SIZE(cued_keys); ++i) {
+        if (herdr_is_armed(cued_keys[i][0])) {
+            rgb_matrix_set_color(led_map[cued_keys[i][1]], rgb.r, rgb.g, rgb.b);
+        }
+    }
+
     rgb = hsv_to_rgb_with_value(herdr_sounds_are_enabled() ?
         (HSV){CTP_GREEN, MIRYOKU_CTP_SAT, 180} : (HSV){CTP_HSV_OFF});
     rgb_matrix_set_color(led_map[9], rgb.r, rgb.g, rgb.b);

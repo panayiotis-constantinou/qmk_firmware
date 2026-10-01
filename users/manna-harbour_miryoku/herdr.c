@@ -24,6 +24,10 @@
 #ifndef HERDR_TIMEOUT_MS
 #    define HERDR_TIMEOUT_MS 3000
 #endif
+// Reject and Clear only fire when tapped twice within this window.
+#ifndef HERDR_CONFIRM_TERM
+#    define HERDR_CONFIRM_TERM TAPPING_TERM
+#endif
 // Swallow a repeated chime, e.g. a state message redelivered by RTP-MIDI.
 #define HERDR_CHIME_DEBOUNCE_MS 1000
 #define HERDR_VELOCITY_TAP  127
@@ -74,6 +78,8 @@ static uint32_t herdr_last_seen;
 static bool     herdr_seen;
 static uint32_t herdr_last_chime;
 static bool     herdr_chimed;
+static uint16_t herdr_armed_key = KC_NO;
+static uint32_t herdr_armed_time;
 
 #ifdef AUDIO_ENABLE
 static float herdr_connected_song[][2] = {{NOTE_E6, 8}, {NOTE_A6, 8}};
@@ -91,6 +97,10 @@ bool herdr_is_connected(void) {
 }
 
 uint8_t herdr_slot_state(uint8_t slot) { return herdr_slots[slot]; }
+
+bool herdr_is_armed(uint16_t keycode) {
+    return herdr_armed_key == keycode && timer_elapsed32(herdr_armed_time) < HERDR_CONFIRM_TERM;
+}
 
 static void herdr_chime(uint8_t value) {
     if (!(value & (HERDR_CHIME_BLOCK | HERDR_CHIME_DONE)) || !herdr_sounds_are_enabled()) {
@@ -159,6 +169,10 @@ static uint8_t herdr_note(uint16_t keycode) {
 }
 
 bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
+    if (record->event.pressed && keycode != herdr_armed_key) {
+        herdr_armed_key = KC_NO;
+    }
+
     if (keycode == AG_SOUND_TOGGLE) {
         if (record->event.pressed) {
             herdr_toggle_setting(HERDR_EE_SOUNDS_OFF);
@@ -175,6 +189,13 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
+    bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR;
+    if (confirm && !herdr_is_armed(keycode)) {
+        herdr_armed_key  = keycode;
+        herdr_armed_time = timer_read32();
+        return false;
+    }
+    herdr_armed_key = KC_NO;
     midi_send_noteon(&midi_device, HERDR_MIDI_CHANNEL, note, HERDR_VELOCITY_TAP);
 
     // These hand focus back to the agent, so return to typing.
