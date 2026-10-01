@@ -19,6 +19,7 @@
 #define HERDR_CC_STATE      111
 #define HERDR_CC_SLOT_FIRST 112
 #define HERDR_CC_ECHO       116
+#define HERDR_CC_RISK       117
 #define HERDR_PROTOCOL      3
 
 #ifndef HERDR_TIMEOUT_MS
@@ -76,6 +77,7 @@ static uint32_t herdr_settings;
 static uint8_t  herdr_slots[HERDR_SLOT_COUNT] = {HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY};
 static uint8_t  herdr_reasons[HERDR_SLOT_COUNT];
 static uint8_t  herdr_colors[HERDR_SLOT_COUNT];
+static uint8_t  herdr_risk;
 static uint32_t herdr_last_seen;
 static bool     herdr_seen;
 static uint32_t herdr_last_chime;
@@ -103,6 +105,7 @@ bool herdr_is_connected(void) {
 }
 
 uint8_t herdr_slot_state(uint8_t slot) { return herdr_slots[slot]; }
+uint8_t herdr_accept_risk(void) { return herdr_is_connected() ? herdr_risk : HERDR_RISK_NONE; }
 
 bool herdr_is_armed(uint16_t keycode) {
     return herdr_armed_key == keycode && timer_elapsed32(herdr_armed_time) < HERDR_CONFIRM_TERM;
@@ -155,6 +158,8 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         herdr_slots[number - HERDR_CC_SLOT_FIRST]   = value & 0x07;
         herdr_reasons[number - HERDR_CC_SLOT_FIRST] = (value >> 3) & 0x03;
         herdr_colors[number - HERDR_CC_SLOT_FIRST]  = (value >> 5) & 0x03;
+    } else if (number == HERDR_CC_RISK) {
+        herdr_risk = value <= HERDR_RISK_HIGH ? value : HERDR_RISK_UNKNOWN;
     }
 }
 
@@ -208,7 +213,9 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
 
     herdr_flag_dropped(record);
 
-    bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR;
+    // Accept needs the same confirmation when the bridge rates the approval as risky.
+    bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR ||
+                   (keycode == AG_ACCEPT && herdr_accept_risk() == HERDR_RISK_HIGH);
     if (confirm && !herdr_is_armed(keycode)) {
         herdr_armed_key  = keycode;
         herdr_armed_time = timer_read32();

@@ -54,6 +54,26 @@ void set_layer_color_miryoku(int layer, const uint8_t *led_map) {
 }
 
 #ifdef HERDR_AGENT_ENABLE
+// Accept shows the approval risk of the focused blocked agent.  A pending or
+// failed judgement never looks green.
+static HSV agent_accept_hsv(void) {
+    switch (herdr_accept_risk()) {
+        case HERDR_RISK_PENDING: {
+            uint16_t phase = (timer_read32() / 4) % 512;
+            uint8_t  level = phase < 256 ? phase : 511 - phase;
+            return (HSV){CTP_HSV_TEXT_HUE, CTP_HSV_TEXT_SAT, 60 + level * 160 / 255};
+        }
+        case HERDR_RISK_UNKNOWN:
+            return (HSV){CTP_HSV_TEXT};
+        case HERDR_RISK_MEDIUM:
+            return (HSV){CTP_PEACH, MIRYOKU_CTP_SAT, 180};
+        case HERDR_RISK_HIGH:
+            return (HSV){CTP_RED, MIRYOKU_CTP_SAT, 180};
+        default:
+            return (HSV){CTP_GREEN, MIRYOKU_CTP_SAT, 180};
+    }
+}
+
 void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     RGB rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_SURFACE});
     for (int i = 0; i < MIRYOKU_KEY_COUNT; i++) {
@@ -86,14 +106,16 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     SET_AGENT_KEY(30, CTP_RED);      // escape
     SET_AGENT_KEY(31, CTP_MAUVE);    // previous agent
     SET_AGENT_KEY(32, CTP_MAUVE);    // next agent
-    SET_AGENT_KEY(33, CTP_GREEN);    // accept
     SET_AGENT_KEY(34, CTP_MAUVE);    // most urgent agent
     SET_AGENT_KEY(35, CTP_MAROON);   // delete
 #undef SET_AGENT_KEY
 
+    rgb = hsv_to_rgb_with_value(agent_accept_hsv());
+    rgb_matrix_set_color(led_map[33], rgb.r, rgb.g, rgb.b);
+
     // Keys waiting for their confirming tap light Catppuccin text.
     static const uint16_t cued_keys[][2] = {
-        {AG_REJECT, 12}, {AG_CLEAR, 11},
+        {AG_ACCEPT, 33}, {AG_REJECT, 12}, {AG_CLEAR, 11},
     };
     rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_TEXT});
     for (uint8_t i = 0; i < ARRAY_SIZE(cued_keys); ++i) {
