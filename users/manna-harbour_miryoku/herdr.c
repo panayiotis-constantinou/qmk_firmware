@@ -171,20 +171,29 @@ static void herdr_set_state_led(uint8_t led, uint8_t state, uint8_t color) {
 }
 
 // One host connection LED (dim yellow connected, dim red disconnected) and
-// HERDR_SLOT_COUNT agent slot LEDs that stay dark while disconnected.
+// HERDR_SLOT_COUNT agent slot LEDs that stay dark while disconnected.  Once the
+// LEDs idle, only slots that need attention stay lit.
 void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
+    bool idle = miryoku_leds_idle();
+
     rgb_matrix_set_color(connection_led, 0, 0, 0);
     for (uint8_t i = 0; i < HERDR_SLOT_COUNT; ++i) {
         rgb_matrix_set_color(slot_leds[i], 0, 0, 0);
     }
 
     if (!herdr_is_connected()) {
-        set_led_hsv(connection_led, (HSV){CTP_RED, MIRYOKU_CTP_SAT, 64});
+        if (!idle) {
+            set_led_hsv(connection_led, (HSV){CTP_RED, MIRYOKU_CTP_SAT, 64});
+        }
         return;
     }
-    set_led_hsv(connection_led, (HSV){CTP_YELLOW, MIRYOKU_CTP_SAT, 64});
+    if (!idle) {
+        set_led_hsv(connection_led, (HSV){CTP_YELLOW, MIRYOKU_CTP_SAT, 64});
+    }
     for (uint8_t i = 0; i < HERDR_SLOT_COUNT; ++i) {
-        herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_colors[i]);
+        if (!idle || herdr_slots[i] != HERDR_IDLE) {
+            herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_colors[i]);
+        }
     }
 }
 #endif

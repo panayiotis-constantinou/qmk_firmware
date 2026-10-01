@@ -50,12 +50,19 @@
 #define CTP_HSV_SURFACE  168, 120,  40
 #define CTP_HSV_OFF      163,  90,  32
 
+// Keypress inactivity after which only Herdr slots needing attention stay lit.
+// Replaces RGB_MATRIX_TIMEOUT, which also hides the indicators.
+#ifndef MIRYOKU_LED_IDLE_TIMEOUT
+#    define MIRYOKU_LED_IDLE_TIMEOUT 600000
+#endif
+
 extern bool capslock_active;
 extern bool scrolllock_active;
 
 // Shared helpers
 RGB  hsv_to_rgb_with_value(HSV hsv);
 bool miryoku_led_update_user(led_t led_state);
+bool miryoku_leds_idle(void);
 void set_layer_color_miryoku(int layer, const uint8_t *led_map);
 void set_agent_layer_colors_miryoku(const uint8_t *led_map);
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count);

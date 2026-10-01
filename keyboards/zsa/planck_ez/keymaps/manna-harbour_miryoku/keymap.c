@@ -43,6 +43,11 @@ static void render_herdr(void) {
 bool led_update_user(led_t state) { return miryoku_led_update_user(state); }
 
 bool rgb_matrix_indicators_user(void) {
+    if (miryoku_leds_idle()) {
+        rgb_matrix_set_color_all(0, 0, 0);
+        herdr_render_status(HERDR_CONNECTION_LED, herdr_agent_leds);
+        return true;
+    }
     if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR) {
         int layer = biton32(layer_state);
         if (layer == 0 || (layer >= 4 && layer <= 9)) {

@@ -18,7 +18,6 @@ LAYOUT_planck_grid( \
 )
 
 #undef RGB_MATRIX_TIMEOUT
-#define RGB_MATRIX_TIMEOUT 900000
 
 // Media layer: double-tap Q to enter the bootloader; B restores layer colours;
 // J toggles LEDs; L/U cycle effects; Y/' adjust speed.

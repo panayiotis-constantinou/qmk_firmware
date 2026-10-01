@@ -35,6 +35,11 @@ static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 
 bool rgb_matrix_indicators_user(void) {
+    if (miryoku_leds_idle()) {
+        rgb_matrix_set_color_all(0, 0, 0);
+        herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
+        return true;
+    }
     if (!keyboard_config.disable_layer_led) {
         int layer = biton32(layer_state);
         if (layer == U_AGENT) {

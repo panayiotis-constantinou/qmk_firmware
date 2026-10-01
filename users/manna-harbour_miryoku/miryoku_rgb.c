@@ -22,6 +22,10 @@ bool miryoku_led_update_user(led_t led_state) {
     return true;
 }
 
+bool miryoku_leds_idle(void) {
+    return last_input_activity_elapsed() > MIRYOKU_LED_IDLE_TIMEOUT;
+}
+
 // ── HSV → RGB scaled by current brightness ──────────────────────────────────
 
 RGB hsv_to_rgb_with_value(HSV hsv) {
