@@ -110,6 +110,7 @@ combo_t key_combos[] = {
 #include "os_detection.h"
 
 typedef enum { OS_AUTO = 0, OS_FORCE_MAC = 1, OS_FORCE_LINUX = 2 } os_override_t;
+#define OS_OVERRIDE_MASK 0x03 // eeconfig user bits 0-1; Herdr uses higher bits
 
 static os_variant_t  detected_os = OS_UNSURE;
 static os_override_t os_override  = OS_AUTO;
@@ -130,7 +131,7 @@ void eeconfig_init_user(void) {
 }
 
 void keyboard_post_init_user(void) {
-    os_override = (os_override_t)(eeconfig_read_user() & 0x03);
+    os_override = (os_override_t)(eeconfig_read_user() & OS_OVERRIDE_MASK);
 #ifdef HERDR_AGENT_ENABLE
     herdr_init();
 #endif
@@ -165,7 +166,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (keycode == QK_OUTPUT_AUTO) {
         if (record->event.pressed) {
             os_override = (os_override_t)((os_override + 1) % 3);
-            eeconfig_update_user((uint32_t)os_override);
+            eeconfig_update_user((eeconfig_read_user() & ~OS_OVERRIDE_MASK) | os_override);
         }
         return false;
     }
