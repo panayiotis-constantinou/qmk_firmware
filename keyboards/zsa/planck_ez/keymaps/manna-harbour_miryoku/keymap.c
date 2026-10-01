@@ -1,9 +1,9 @@
 #include QMK_KEYBOARD_H
 #include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
+#include "herdr.h"
 
-// miryoku key index -> planck LED index (36 entries)
-// index 0-9=K00-K09, 10-19=K10-K19, 20-29=K20-K29, 30-32=K32-K34, 33-35=K35-K37
+// Miryoku key index -> Planck LED index (36 entries).
 static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
 //  K00  K01  K02  K03  K04    K05  K06  K07  K08  K09
       0,   1,   2,   3,   4,    7,   8,   9,  10,  11,
@@ -15,15 +15,32 @@ static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
      38,  39,  40,   42,  43,  44,
 };
 
-// Free (non-miryoku) LED index -> planck LED index
-// Inner key per row: row0=5, row1=17, row2=29
-static const uint8_t free_to_led[] = {
-     5,  // MIRYOKU_FREE_CAPSLOCK
-    17,  // MIRYOKU_FREE_SCROLLLOCK
-    29,  // MIRYOKU_FREE_JIGGLER
-};
+// The center 3x2 block and the four bottom-outer positions have no switches:
+// they stay dark except for the Herdr status and the toggle indicators.
+static const uint8_t led_only_leds[] = {5, 6, 17, 18, 29, 30, 36, 37, 45, 46};
+// Caps Lock at the bottom-left corner, Scroll Lock at the center-block bottom
+// left, and mouse jiggler at the bottom-right corner.
+static const uint8_t free_to_led[] = {36, 29, 46};
+// Agent slots on the center block's top two rows, left to right, and the host
+// connection on the space bar.
+static const uint8_t herdr_agent_leds[HERDR_SLOT_COUNT] = {5, 6, 17, 18};
+#define HERDR_CONNECTION_LED 41
 
-bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
+static void render_herdr(void) {
+    for (uint8_t i = 0; i < ARRAY_SIZE(led_only_leds); ++i) {
+        rgb_matrix_set_color(led_only_leds[i], 0, 0, 0);
+    }
+
+    if (layer_state_is(U_AGENT)) {
+        set_agent_layer_colors_miryoku(miryoku_to_led);
+    }
+
+    set_free_led_indicators(free_to_led, ARRAY_SIZE(free_to_led));
+
+    herdr_render_status(HERDR_CONNECTION_LED, herdr_agent_leds);
+}
+
+bool led_update_user(led_t state) { return miryoku_led_update_user(state); }
 
 bool rgb_matrix_indicators_user(void) {
     if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR) {
@@ -36,9 +53,6 @@ bool rgb_matrix_indicators_user(void) {
     } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
-    if (layer_state_is(U_AGENT)) {
-        set_agent_layer_colors_miryoku(miryoku_to_led);
-    }
-    set_free_led_indicators(free_to_led, sizeof(free_to_led));
+    render_herdr();
     return true;
 }

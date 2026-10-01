@@ -1,6 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
+#include "herdr.h"
 
 // miryoku key index -> moonlander LED index (36 entries)
 // index 0-9=K00-K09, 10-19=K10-K19, 20-29=K20-K29, 30-32=K32-K34, 33-35=K35-K37
@@ -26,6 +27,11 @@ static const uint8_t free_to_led[] = {
     56,  // MIRYOKU_FREE_JIGGLER     (right mirror)
 };
 
+// Agent slots down the left's spare column beside the index finger, top to
+// bottom; the host connection on the right's spare key beside K.
+static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
+#define HERDR_CONNECTION_LED 64
+
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 
 bool rgb_matrix_indicators_user(void) {
@@ -43,5 +49,6 @@ bool rgb_matrix_indicators_user(void) {
         rgb_matrix_set_color_all(0, 0, 0);
     }
     set_free_led_indicators(free_to_led, sizeof(free_to_led));
+    herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
     return true;
 }
