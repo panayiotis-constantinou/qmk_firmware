@@ -55,5 +55,6 @@ bool rgb_matrix_indicators_user(void) {
     }
     set_free_led_indicators(free_to_led, sizeof(free_to_led));
     herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
+    herdr_render_dropped_press();
     return true;
 }

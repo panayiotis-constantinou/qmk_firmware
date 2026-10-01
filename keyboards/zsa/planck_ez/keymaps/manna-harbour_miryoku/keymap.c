@@ -38,6 +38,7 @@ static void render_herdr(void) {
     set_free_led_indicators(free_to_led, ARRAY_SIZE(free_to_led));
 
     herdr_render_status(HERDR_CONNECTION_LED, herdr_agent_leds);
+    herdr_render_dropped_press();
 }
 
 bool led_update_user(led_t state) { return miryoku_led_update_user(state); }

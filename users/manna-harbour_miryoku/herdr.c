@@ -30,6 +30,7 @@
 #endif
 // Swallow a repeated chime, e.g. a state message redelivered by RTP-MIDI.
 #define HERDR_CHIME_DEBOUNCE_MS 1000
+#define HERDR_DROPPED_FLASH_MS  300
 #define HERDR_VELOCITY_TAP  127
 
 // eeconfig user bits 0-1 hold the OS override, and bits 2 and 4 held the
@@ -80,6 +81,10 @@ static uint32_t herdr_last_chime;
 static bool     herdr_chimed;
 static uint16_t herdr_armed_key = KC_NO;
 static uint32_t herdr_armed_time;
+#ifdef RGB_MATRIX_ENABLE
+static uint8_t  herdr_dropped_led = NO_LED;
+static uint32_t herdr_dropped_time;
+#endif
 
 #ifdef AUDIO_ENABLE
 static float herdr_connected_song[][2] = {{NOTE_E6, 8}, {NOTE_A6, 8}};
@@ -168,6 +173,16 @@ static uint8_t herdr_note(uint16_t keycode) {
     return herdr_notes[keycode - QK_USER_0];
 }
 
+// Flash the key when there is no bridge to receive it.
+static void herdr_flag_dropped(keyrecord_t *record) {
+#ifdef RGB_MATRIX_ENABLE
+    if (!herdr_is_connected() && record->event.key.row < MATRIX_ROWS && record->event.key.col < MATRIX_COLS) {
+        herdr_dropped_led  = g_led_config.matrix_co[record->event.key.row][record->event.key.col];
+        herdr_dropped_time = timer_read32();
+    }
+#endif
+}
+
 bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed && keycode != herdr_armed_key) {
         herdr_armed_key = KC_NO;
@@ -188,6 +203,8 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
         midi_send_noteoff(&midi_device, HERDR_MIDI_CHANNEL, note, 0);
         return false;
     }
+
+    herdr_flag_dropped(record);
 
     bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR;
     if (confirm && !herdr_is_armed(keycode)) {
@@ -280,6 +297,12 @@ void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
         if (!idle || herdr_slots[i] != HERDR_IDLE) {
             herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_colors[i]);
         }
+    }
+}
+
+void herdr_render_dropped_press(void) {
+    if (herdr_dropped_led != NO_LED && timer_elapsed32(herdr_dropped_time) < HERDR_DROPPED_FLASH_MS) {
+        set_led_hsv(herdr_dropped_led, (HSV){CTP_RED, MIRYOKU_CTP_SAT, 255});
     }
 }
 #endif

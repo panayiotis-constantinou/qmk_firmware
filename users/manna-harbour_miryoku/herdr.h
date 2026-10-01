@@ -26,6 +26,7 @@ bool    herdr_sounds_are_enabled(void);
 
 #ifdef RGB_MATRIX_ENABLE
 void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds);
+void herdr_render_dropped_press(void);
 #endif
 
 #endif
