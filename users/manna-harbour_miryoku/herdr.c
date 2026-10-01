@@ -74,6 +74,7 @@ static const uint8_t herdr_notes[] = {
 
 static uint32_t herdr_settings;
 static uint8_t  herdr_slots[HERDR_SLOT_COUNT] = {HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY};
+static uint8_t  herdr_reasons[HERDR_SLOT_COUNT];
 static uint8_t  herdr_colors[HERDR_SLOT_COUNT];
 static uint32_t herdr_last_seen;
 static bool     herdr_seen;
@@ -152,6 +153,7 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         herdr_chime(value);
     } else if (number >= HERDR_CC_SLOT_FIRST && number < HERDR_CC_SLOT_FIRST + HERDR_SLOT_COUNT) {
         herdr_slots[number - HERDR_CC_SLOT_FIRST]   = value & 0x07;
+        herdr_reasons[number - HERDR_CC_SLOT_FIRST] = (value >> 3) & 0x03;
         herdr_colors[number - HERDR_CC_SLOT_FIRST]  = (value >> 5) & 0x03;
     }
 }
@@ -233,9 +235,21 @@ static void set_led_hsv(uint8_t led, HSV hsv) {
     rgb_matrix_set_color(led, rgb.r, rgb.g, rgb.b);
 }
 
-// Blocked agents blink every 250 ms.
-static bool herdr_blocked_blink_on(void) {
-    return (timer_read32() / 250) & 1;
+// Blocked agents blink in a rhythm for their reason: steady 250 ms for a
+// permission prompt or unknown reason, a double blink for a question, and a
+// fast blink for an error.
+static bool herdr_blocked_blink_on(uint8_t reason) {
+    uint32_t now = timer_read32();
+    switch (reason) {
+        case HERDR_REASON_QUESTION: {
+            uint16_t phase = now % 1000;
+            return phase < 100 || (phase >= 200 && phase < 300);
+        }
+        case HERDR_REASON_ERROR:
+            return (now / 100) & 1;
+        default:
+            return (now / 250) & 1;
+    }
 }
 
 // Working agents breathe in step on a ~2 s cycle, never below about 30%
@@ -250,7 +264,7 @@ static uint8_t herdr_breath_value(void) {
 // shows as dim, breathing, blinking, half, or bright in that hue.
 static const uint8_t herdr_agent_hues[] = {CTP_BLUE, CTP_YELLOW, CTP_TEAL, CTP_MAUVE};
 
-static void herdr_set_state_led(uint8_t led, uint8_t state, uint8_t color) {
+static void herdr_set_state_led(uint8_t led, uint8_t state, uint8_t reason, uint8_t color) {
     uint8_t hue = herdr_agent_hues[color];
     switch (state) {
         case HERDR_IDLE:
@@ -260,7 +274,7 @@ static void herdr_set_state_led(uint8_t led, uint8_t state, uint8_t color) {
             set_led_hsv(led, (HSV){hue, MIRYOKU_CTP_SAT, herdr_breath_value()});
             break;
         case HERDR_BLOCKED:
-            if (herdr_blocked_blink_on()) {
+            if (herdr_blocked_blink_on(reason)) {
                 set_led_hsv(led, (HSV){hue, MIRYOKU_CTP_SAT, 255});
             }
             break;
@@ -295,7 +309,7 @@ void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
     }
     for (uint8_t i = 0; i < HERDR_SLOT_COUNT; ++i) {
         if (!idle || herdr_slots[i] != HERDR_IDLE) {
-            herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_colors[i]);
+            herdr_set_state_led(slot_leds[i], herdr_slots[i], herdr_reasons[i], herdr_colors[i]);
         }
     }
 }

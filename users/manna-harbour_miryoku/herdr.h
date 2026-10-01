@@ -14,6 +14,14 @@ enum herdr_state {
     HERDR_EMPTY = 7,
 };
 
+// Why a blocked agent is waiting, judged by the bridge.
+enum herdr_reason {
+    HERDR_REASON_UNKNOWN,
+    HERDR_REASON_PERMISSION,
+    HERDR_REASON_QUESTION,
+    HERDR_REASON_ERROR,
+};
+
 #define HERDR_SLOT_COUNT 4
 
 void    herdr_init(void);
