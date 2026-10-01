@@ -85,6 +85,9 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     rgb_matrix_set_color(led_map[index], rgb.r, rgb.g, rgb.b); \
 } while (0)
     SET_AGENT_KEY( 0, herdr_sort_is_grouped() ? CTP_PEACH : CTP_GREEN); // Herdr sort mode
+    SET_AGENT_KEY( 1, CTP_MAROON);   // close pane
+    SET_AGENT_KEY( 2, CTP_MAROON);   // close tab
+    SET_AGENT_KEY( 3, CTP_MAROON);   // close workspace
     SET_AGENT_KEY( 6, CTP_GREEN);    // new workspace
     SET_AGENT_KEY( 7, CTP_GREEN);    // new tab
     SET_AGENT_KEY(11, CTP_PEACH);    // clear
@@ -117,6 +120,7 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     // Keys waiting for their confirming tap light Catppuccin text.
     static const uint16_t cued_keys[][2] = {
         {AG_ACCEPT, 33}, {AG_REJECT, 12}, {AG_CLEAR, 11},
+        {AG_PANE_CLOSE, 1}, {AG_TAB_CLOSE, 2}, {AG_WS_CLOSE, 3},
     };
     rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_TEXT});
     for (uint8_t i = 0; i < ARRAY_SIZE(cued_keys); ++i) {

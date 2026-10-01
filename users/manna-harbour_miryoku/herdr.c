@@ -27,7 +27,8 @@
 #ifndef HERDR_TIMEOUT_MS
 #    define HERDR_TIMEOUT_MS 3000
 #endif
-// Reject and Clear only fire when tapped twice within this window.
+// Reject, Clear, and the close controls only fire when tapped twice within
+// this window.
 #ifndef HERDR_CONFIRM_TERM
 #    define HERDR_CONFIRM_TERM TAPPING_TERM
 #endif
@@ -74,6 +75,9 @@ static const uint8_t herdr_notes[] = {
     [AG_CLEAR - QK_USER_0]        = 127,
     [AG_AGENT_PREV - QK_USER_0]   = 110,
     [AG_AGENT_URGENT - QK_USER_0] = 111,
+    [AG_PANE_CLOSE - QK_USER_0]   = 112,
+    [AG_TAB_CLOSE - QK_USER_0]    = 113,
+    [AG_WS_CLOSE - QK_USER_0]     = 114,
 };
 
 static uint32_t herdr_settings;
@@ -266,7 +270,8 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     }
 
     // Accept needs the same confirmation when the bridge rates the approval as risky.
-    bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR ||
+    bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR || keycode == AG_PANE_CLOSE ||
+                   keycode == AG_TAB_CLOSE || keycode == AG_WS_CLOSE ||
                    (keycode == AG_ACCEPT && herdr_accept_risk() == HERDR_RISK_HIGH);
     if (confirm && !herdr_is_armed(keycode)) {
         herdr_armed_key  = keycode;
