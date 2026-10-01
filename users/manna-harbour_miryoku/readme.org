@@ -805,6 +805,46 @@ make waterfowl:manna-harbour_miryoku:flash
 Combo the primary and secondary thumb keys to emulate the tertiary thumb key.  Can be used on keyboards with missing or hard to reach tertiary thumb keys or for compatibility with same.  Requires suitable keycaps to enable the thumb to press both keys simultaneously.
 
 
+*** Herdr MIDI Control Layer
+
+Enabled for the Planck EZ and Moonlander Miryoku keymaps.  Press the outer thumb ~ESC + DEL~ chord to enter or exit the layer; ESC and DEL keep their base-layer positions and tap actions.  Prompt, Accept, Reject, and Clear hand focus back to the agent, so they also exit the layer.
+
+#+BEGIN_EXAMPLE
+┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
+│ SORT   │ PANE × │ TAB ×  │ WS ×   │ ·      │     │ ·      │ NEW WS │ NEW TAB│ SPLIT →│ SOUND  │
+│        │        │        │        │        │     │        │        │PANE→TAB│ SPLIT ↓│        │
+│ CC118  │ N112 ² │ N113 ² │ N114 ² │        │     │        │ N116   │ N117   │ N115   │ local  │
+└────────┴────────┴────────┴────────┴────────┘     └────────┴────────┴────────┴────────┴────────┘
+
+┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
+│ ·      │ CLEAR  │ REJECT │ PROMPT │ ·      │     │ PICKER │ PANE ◀ │ PANE ▼ │ PANE ▲ │ PANE ▶ │
+│        │        │        │        │        │     │        │ SWAP ◀ │ SWAP ▼ │ SWAP ▲ │ SWAP ▶ │
+│        │ N127 ⏏²│ N125 ⏏²│ N126 ⏏ │        │     │ N108   │ N104   │ N105   │ N106   │ N107   │
+└────────┴────────┴────────┴────────┴────────┘     └────────┴────────┴────────┴────────┴────────┘
+
+┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
+│ SCRATCH│ HUNK   │ LAZYGIT│ PALETTE│ ·      │     │ ZOOM   │ WS ◀   │ TAB ◀  │ TAB ▶  │ WS ▶   │
+│        │        │ IN TAB │        │        │     │        │        │        │        │        │
+│ N109   │ N121   │ N118   │ N119   │        │     │ N120   │ N100   │ N102   │ N103   │ N101   │
+└────────┴────────┴────────┴────────┴────────┘     └────────┴────────┴────────┴────────┴────────┘
+
+          ┌──────┬──────┬──────┐     ┌──────┬──────┬──────┐
+          │ ESC  │ PREV │ NEXT │     │ACCEPT│URGENT│ DEL  │
+          │      │ AGENT│ AGENT│     │      │ AGENT│      │
+          │      │ N110 │ N122 │     │N124 ⏏│ N111 │      │
+          └──────┴──────┴──────┘     └──────┴──────┴──────┘
+#+END_EXAMPLE
+
+~·~ marks an unused key, ~⏏~ a control that exits the layer, and ~²~ a control that needs a double tap; a middle line names what holding the key past the hold term does instead.  The right hand says where, like the Nav layer: pane arrows on the home row, and workspace and tab steps below them like Home/PgDn/PgUp/End.  The left hand says what: closing on the top row, mirroring New Workspace, New Tab, and Split on the right, agent replies on the home row, and tools below.  Prev and Next Agent sit on the left thumbs, and Accept on the right inner thumb, where Enter is on the base layer.  Controls send MIDI Note On/Off on channel ~15~ to the Herdr host (~N~ is the note number); status, connection, and chime feedback travels back as CCs on the same channel.  The firmware treats the host as connected only while it receives protocol ~3~ heartbeats.  An iPad connection needs both MIDI directions routed through RTP-MIDI.  Workspace and tab controls cycle or create items using the focused pane's directory.  Picker opens the Herdr workspace/agent picker, Prev and Next Agent cycle through live agents in Herdr's panel order, and Urgent Agent focuses the agent that most needs attention.  Pane controls focus left, down, up, or right, and swap the focused pane that way when held.  Split splits the focused pane to the right, or downward when held; held, New Tab moves the focused pane into a new tab.  The left bottom row toggles the floating scratch shell, opens a Hunk worktree diff, LazyGit (in its own tab when held), and the plugin command palette, and Zoom sits under Picker.  The close controls (~×~) close the focused pane, tab, or workspace, and stay on the layer so several can be closed in a row.
+
+Reject, Clear, and the close controls only fire when tapped twice within the tapping term, and so does Accept when the host rates the pending approval as high risk; after the first tap the key lights in the Catppuccin text color.  A key with a hold variant fires when released, or when the next control is pressed, and lights the text color once the hold counts.  Holds use ~HERDR_HOLD_TERM~ (350 ms by default, configurable independently of ~TAPPING_TERM~).  Leaving the Herdr layer, losing the connection, or becoming standby cancels pending holds; disconnected presses are not queued.  Pressing a control while the host is disconnected flashes that key red.  Sound is a firmware-local toggle saved in EEPROM.  Sort asks Herdr to switch its agent panel mode (CC ~118~); every board mirrors the mode Herdr confirms, and the board saves nothing.  A repeated chime within one second is ignored.
+
+Both keyboards show one host connection LED and four agent slot LEDs: the Planck EZ's space bar for the connection and the center block's top two rows for the slots, and the Moonlander's spare left column beside the index finger (slots top to bottom) and the spare right key beside K for the connection.  The connection LED is dim yellow while heartbeats arrive and dim red when they stop; the slots go dark while disconnected.  With several keyboards on one host, all of them mirror the same slots, and the host marks every board but the one you use as standby (CC ~119~ value ~0~): its connection LED turns dim blue, it plays no chimes, and the first control pressed on it only makes it the active board, without acting, arming a double tap, or leaving the layer.  The slots hold the first four agents in Herdr's panel order, first on the left.  Sort switches the panel between Priority (blocked, done, working, idle, then unknown, the latest state change first within each) and Grouped (workspace, tab, then pane order), and clears any agent view that would hide it; clicking the panel's sort label does the same.  The key lights green or peach, and the active board plays a low or high cue once Herdr confirms a change.  Prev and Next Agent follow the panel order; Urgent Agent keeps its own ranking.  One RGB LED shows the mode once the host reports it, dim green for Priority and dim peach for Grouped: the Planck EZ's inner bottom-left LED, or the Moonlander's right innermost number-row key.  Both keep their small LEDs dark.  Each agent on the board gets its own color, blue, yellow, teal, or mauve, and keeps it while it stays there, so it can be followed when the order changes.  An idle agent is dim, done is bright, and unknown a steady half brightness.  Working agents breathe together on a two-second cycle and never fade below about 30%.  Blocked agents blink in a rhythm for why they wait: a steady blink for a permission prompt or unknown reason, a double blink for a question, and a fast blink for an error.  After 10 minutes without a keypress (~MIRYOKU_LED_IDLE_TIMEOUT~) every other LED goes dark, leaving only the working, done, blocked, and unknown slots lit; idle slots, the connection LED, and the sort-mode LED go dark too.  The next keypress restores the full backlight.  The LEDs still turn off completely while the host sleeps or when toggled off.
+
+With TypeSafe enabled on the host, Accept shows the approval risk of the focused blocked agent: green for read-only actions, peach for project edits, and red for destructive or external actions.  It pulses the text color while the judgement is pending and shows steady text when the host is unsure or the agent is not waiting for approval.  Without TypeSafe, or when the focused agent is not blocked, Accept stays green.
+
+The layer uses Catppuccin Mocha hues at a shared, boosted saturation (~MIRYOKU_CTP_SAT~) on a dim surface background.  Workspace navigation, Picker, agent navigation, and Palette are mauve; tab navigation is sapphire; Scratch is teal; New Workspace, New Tab, Split, and Accept are green; Prompt is blue; pane navigation and Zoom are yellow; Reject and Escape are red; Clear, LazyGit, and Hunk are peach; and the close controls and Delete are maroon.  Sort is green for Priority and peach for Grouped, and Sound is green when enabled and dim grey when disabled.
+
 
 *** 𝑥MK
 
