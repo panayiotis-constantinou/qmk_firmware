@@ -7,6 +7,7 @@
 
 #include "manna-harbour_miryoku.h"
 #include "mouse_jiggler.h"
+#include "herdr.h"
 
 
 // Additional Features double tap guard
@@ -75,19 +76,31 @@ const uint16_t PROGMEM thumbcombos_sym[] = {KC_UNDS, KC_LPRN, COMBO_END};
 const uint16_t PROGMEM thumbcombos_sym[] = {KC_RPRN, KC_UNDS, COMBO_END};
   #endif
 const uint16_t PROGMEM thumbcombos_fun[] = {KC_SPC, KC_TAB, COMBO_END};
-combo_t key_combos[COMBO_COUNT] = {
+#endif
+
+#ifdef HERDR_AGENT_ENABLE
+const uint16_t PROGMEM herdr_toggle_combo[] = {LT(U_FUN, KC_DEL), LT(U_MEDIA, KC_ESC), COMBO_END};
+#endif
+
+#if defined (MIRYOKU_KLUDGE_THUMBCOMBOS) || defined (HERDR_AGENT_ENABLE)
+combo_t key_combos[] = {
+  #if defined (MIRYOKU_KLUDGE_THUMBCOMBOS)
   COMBO(thumbcombos_base_right, LT(U_FUN, KC_DEL)),
   COMBO(thumbcombos_base_left, LT(U_MEDIA, KC_ESC)),
   COMBO(thumbcombos_nav, KC_DEL),
   COMBO(thumbcombos_mouse, MS_BTN3),
   COMBO(thumbcombos_media, KC_MUTE),
   COMBO(thumbcombos_num, KC_DOT),
-  #if defined (MIRYOKU_LAYERS_FLIP)
+    #if defined (MIRYOKU_LAYERS_FLIP)
   COMBO(thumbcombos_sym, KC_RPRN),
-  #else
+    #else
   COMBO(thumbcombos_sym, KC_LPRN),
+    #endif
+  COMBO(thumbcombos_fun, KC_APP),
   #endif
-  COMBO(thumbcombos_fun, KC_APP)
+  #ifdef HERDR_AGENT_ENABLE
+  COMBO(herdr_toggle_combo, TG(U_AGENT)),
+  #endif
 };
 #endif
 
@@ -118,6 +131,9 @@ void eeconfig_init_user(void) {
 
 void keyboard_post_init_user(void) {
     os_override = (os_override_t)(eeconfig_read_user() & 0x03);
+#ifdef HERDR_AGENT_ENABLE
+    herdr_init();
+#endif
 #ifdef RGB_MATRIX_ENABLE
     rgb_matrix_enable();
 #endif
@@ -134,6 +150,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             keyboard_config.disable_layer_led = false;
             eeconfig_update_kb(keyboard_config.raw);
         }
+        return false;
+    }
+#endif
+#ifdef HERDR_AGENT_ENABLE
+    if (!process_record_herdr(keycode, record)) {
         return false;
     }
 #endif

@@ -33,7 +33,11 @@
 
 // Thumb Combos
 #if defined (MIRYOKU_KLUDGE_THUMBCOMBOS)
-  #define COMBO_COUNT 8
+  #ifdef HERDR_AGENT_ENABLE
+    #define COMBO_COUNT 9
+  #else
+    #define COMBO_COUNT 8
+  #endif
   #define COMBO_TERM 200
   #define EXTRA_SHORT_COMBOS
 #endif
