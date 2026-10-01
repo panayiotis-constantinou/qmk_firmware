@@ -185,4 +185,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void housekeeping_task_user(void) {
     housekeeping_task_mouse_jiggler();
+#ifdef HERDR_AGENT_ENABLE
+    herdr_task();
+#endif
 }

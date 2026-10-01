@@ -32,10 +32,17 @@
 #ifndef HERDR_CONFIRM_TERM
 #    define HERDR_CONFIRM_TERM TAPPING_TERM
 #endif
+// Keep rearrangement holds slower than normal Miryoku layer taps.
+#ifndef HERDR_HOLD_TERM
+#    define HERDR_HOLD_TERM 350
+#endif
 // Swallow a repeated chime, e.g. a state message redelivered by RTP-MIDI.
 #define HERDR_CHIME_DEBOUNCE_MS 1000
 #define HERDR_DROPPED_FLASH_MS  300
+// Note On velocities: a tap, or a hold past HERDR_HOLD_TERM on a key with a
+// hold variant.  Bridges that predate holds ignore the hold velocity.
 #define HERDR_VELOCITY_TAP  127
+#define HERDR_VELOCITY_HOLD 64
 
 // eeconfig user bits 0-1 hold the OS override, and bits 2 and 4 held the
 // retired spinner and sort toggles; a zero bit keeps sounds on.  The sort
@@ -95,6 +102,8 @@ static uint32_t herdr_last_chime;
 static bool     herdr_chimed;
 static uint16_t herdr_armed_key = KC_NO;
 static uint32_t herdr_armed_time;
+static uint16_t herdr_held_key = KC_NO;
+static uint32_t herdr_held_time;
 #ifdef RGB_MATRIX_ENABLE
 static uint8_t  herdr_dropped_led = NO_LED;
 static uint32_t herdr_dropped_time;
@@ -128,6 +137,41 @@ bool herdr_is_armed(uint16_t keycode) {
     return herdr_armed_key == keycode && timer_elapsed32(herdr_armed_time) < HERDR_CONFIRM_TERM;
 }
 
+// Held past the hold term, so its release sends the hold variant.
+bool herdr_is_held(uint16_t keycode) {
+    return herdr_held_key == keycode && timer_elapsed32(herdr_held_time) >= HERDR_HOLD_TERM;
+}
+
+static void herdr_cancel_stale_hold(void) {
+    if (!layer_state_is(U_AGENT) || !herdr_is_connected() || herdr_is_standby()) {
+        herdr_held_key = KC_NO;
+    }
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    if (!(state & ((layer_state_t)1 << U_AGENT))) {
+        herdr_held_key = KC_NO;
+    }
+    return state;
+}
+
+// Pane arrows swap, Split splits down, New Tab moves the pane to a new tab,
+// and LazyGit opens in a tab when held.
+static bool herdr_has_hold(uint16_t keycode) {
+    switch (keycode) {
+        case AG_PANE_LEFT:
+        case AG_PANE_DOWN:
+        case AG_PANE_UP:
+        case AG_PANE_RIGHT:
+        case AG_PANE_SPLIT:
+        case AG_TAB_NEW:
+        case AG_LAZYGIT:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static void herdr_chime(uint8_t value) {
     if (!(value & (HERDR_CHIME_BLOCK | HERDR_CHIME_DONE)) || !herdr_sounds_are_enabled()) {
         return;
@@ -156,6 +200,7 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
             return;
         }
         if (!herdr_is_connected()) {
+            herdr_held_key = KC_NO;
             // A bridge that never sends CC 119 must not inherit an old standby,
             // and its first sort report is not a change to cue.
             herdr_standby    = false;
@@ -183,6 +228,7 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         herdr_risk = value <= HERDR_RISK_HIGH ? value : HERDR_RISK_UNKNOWN;
     } else if (number == HERDR_CC_ACTIVE) {
         herdr_standby = value == 0;
+        herdr_cancel_stale_hold();
     } else if (number == HERDR_CC_SORT && value <= 1) {
         // Herdr owns the mode, set from any board or its own panel; the active
         // board cues each confirmed change.
@@ -205,6 +251,11 @@ void herdr_init(void) {
 
 // The host's sort mode, once it has reported one since connecting.
 static bool herdr_sort_is_known(void) { return herdr_sort_known && herdr_is_connected(); }
+
+// A bridge timeout has no event of its own, so check for stale holds here too.
+void herdr_task(void) {
+    herdr_cancel_stale_hold();
+}
 
 static void herdr_toggle_setting(uint32_t bit) {
     herdr_settings ^= bit;
@@ -229,6 +280,7 @@ static void herdr_flag_dropped(keyrecord_t *record) {
 }
 
 bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
+    herdr_cancel_stale_hold();
     if (record->event.pressed && keycode != herdr_armed_key) {
         herdr_armed_key = KC_NO;
     }
@@ -255,6 +307,13 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     if (!note) {
         return true;
     }
+    // A key with a hold variant fires once released, or once another control
+    // is pressed during a roll, with the velocity its hold time earned.
+    if (herdr_held_key != KC_NO && (keycode == herdr_held_key) != record->event.pressed) {
+        uint8_t velocity = herdr_is_held(herdr_held_key) ? HERDR_VELOCITY_HOLD : HERDR_VELOCITY_TAP;
+        midi_send_noteon(&midi_device, HERDR_MIDI_CHANNEL, herdr_note(herdr_held_key), velocity);
+        herdr_held_key = KC_NO;
+    }
     if (!record->event.pressed) {
         midi_send_noteoff(&midi_device, HERDR_MIDI_CHANNEL, note, 0);
         return false;
@@ -267,6 +326,13 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     if (herdr_is_standby()) {
         herdr_armed_key = KC_NO;
         midi_send_noteon(&midi_device, HERDR_MIDI_CHANNEL, note, HERDR_VELOCITY_TAP);
+        return false;
+    }
+    if (herdr_has_hold(keycode)) {
+        if (layer_state_is(U_AGENT) && herdr_is_connected()) {
+            herdr_held_key  = keycode;
+            herdr_held_time = timer_read32();
+        }
         return false;
     }
 

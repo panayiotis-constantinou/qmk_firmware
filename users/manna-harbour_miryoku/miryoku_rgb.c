@@ -118,14 +118,17 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     rgb = hsv_to_rgb_with_value(agent_accept_hsv());
     rgb_matrix_set_color(led_map[33], rgb.r, rgb.g, rgb.b);
 
-    // Keys waiting for their confirming tap light Catppuccin text.
+    // Keys waiting for their confirming tap, or held long enough to send their
+    // hold variant, light Catppuccin text.
     static const uint16_t cued_keys[][2] = {
         {AG_ACCEPT, 33}, {AG_REJECT, 12}, {AG_CLEAR, 11},
         {AG_PANE_CLOSE, 1}, {AG_TAB_CLOSE, 2}, {AG_WS_CLOSE, 3},
+        {AG_TAB_NEW, 7}, {AG_PANE_SPLIT, 8}, {AG_LAZYGIT, 22},
+        {AG_PANE_LEFT, 16}, {AG_PANE_DOWN, 17}, {AG_PANE_UP, 18}, {AG_PANE_RIGHT, 19},
     };
     rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_TEXT});
     for (uint8_t i = 0; i < ARRAY_SIZE(cued_keys); ++i) {
-        if (herdr_is_armed(cued_keys[i][0])) {
+        if (herdr_is_armed(cued_keys[i][0]) || herdr_is_held(cued_keys[i][0])) {
             rgb_matrix_set_color(led_map[cued_keys[i][1]], rgb.r, rgb.g, rgb.b);
         }
     }
