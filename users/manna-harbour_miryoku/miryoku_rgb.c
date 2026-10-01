@@ -93,7 +93,6 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     SET_AGENT_KEY( 8, CTP_GREEN);    // split pane
     SET_AGENT_KEY(11, CTP_PEACH);    // clear
     SET_AGENT_KEY(12, CTP_RED);      // reject
-    SET_AGENT_KEY(13, CTP_BLUE);     // prompt
     SET_AGENT_KEY(15, CTP_MAUVE);    // agent picker
     SET_AGENT_KEY(16, CTP_YELLOW);   // pane left
     SET_AGENT_KEY(17, CTP_YELLOW);   // pane down

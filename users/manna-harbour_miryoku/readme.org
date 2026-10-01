@@ -807,7 +807,7 @@ Combo the primary and secondary thumb keys to emulate the tertiary thumb key.  C
 
 *** Herdr MIDI Control Layer
 
-Enabled for the Planck EZ and Moonlander Miryoku keymaps.  Press the outer thumb ~ESC + DEL~ chord to enter or exit the layer; ESC and DEL keep their base-layer positions and tap actions.  Prompt, Accept, Reject, and Clear hand focus back to the agent, so they also exit the layer.
+Enabled for the Planck EZ and Moonlander Miryoku keymaps.  Press the outer thumb ~ESC + DEL~ chord to enter or exit the layer; ESC and DEL keep their base-layer positions and tap actions.  Accept, Reject, and Clear hand focus back to the agent, so they also exit the layer.
 
 #+BEGIN_EXAMPLE
 ┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
@@ -817,9 +817,9 @@ Enabled for the Planck EZ and Moonlander Miryoku keymaps.  Press the outer thumb
 └────────┴────────┴────────┴────────┴────────┘     └────────┴────────┴────────┴────────┴────────┘
 
 ┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
-│ ·      │ CLEAR  │ REJECT │ PROMPT │ ·      │     │ PICKER │ PANE ◀ │ PANE ▼ │ PANE ▲ │ PANE ▶ │
+│ ·      │ CLEAR  │ REJECT │ ·      │ ·      │     │ PICKER │ PANE ◀ │ PANE ▼ │ PANE ▲ │ PANE ▶ │
 │        │        │        │        │        │     │        │ SWAP ◀ │ SWAP ▼ │ SWAP ▲ │ SWAP ▶ │
-│        │ N127 ⏏²│ N125 ⏏²│ N126 ⏏ │        │     │ N108   │ N104   │ N105   │ N106   │ N107   │
+│        │ N127 ⏏²│ N125 ⏏²│        │        │     │ N108   │ N104   │ N105   │ N106   │ N107   │
 └────────┴────────┴────────┴────────┴────────┘     └────────┴────────┴────────┴────────┴────────┘
 
 ┌────────┬────────┬────────┬────────┬────────┐     ┌────────┬────────┬────────┬────────┬────────┐
@@ -843,7 +843,7 @@ Both keyboards show one host connection LED and four agent slot LEDs: the Planck
 
 With TypeSafe enabled on the host, Accept shows the approval risk of the focused blocked agent: green for read-only actions, peach for project edits, and red for destructive or external actions.  It pulses the text color while the judgement is pending and shows steady text when the host is unsure or the agent is not waiting for approval.  Without TypeSafe, or when the focused agent is not blocked, Accept stays green.
 
-The layer uses Catppuccin Mocha hues at a shared, boosted saturation (~MIRYOKU_CTP_SAT~) on a dim surface background.  Workspace navigation, Picker, agent navigation, and Palette are mauve; tab navigation is sapphire; Scratch is teal; New Workspace, New Tab, Split, and Accept are green; Prompt is blue; pane navigation and Zoom are yellow; Reject and Escape are red; Clear, LazyGit, and Hunk are peach; and the close controls and Delete are maroon.  Sort is green for Priority and peach for Grouped, and Sound is green when enabled and dim grey when disabled.
+The layer uses Catppuccin Mocha hues at a shared, boosted saturation (~MIRYOKU_CTP_SAT~) on a dim surface background.  Workspace navigation, Picker, agent navigation, and Palette are mauve; tab navigation is sapphire; Scratch is teal; New Workspace, New Tab, Split, and Accept are green; pane navigation and Zoom are yellow; Reject and Escape are red; Clear, LazyGit, and Hunk are peach; and the close controls and Delete are maroon.  Sort is green for Priority and peach for Grouped, and Sound is green when enabled and dim grey when disabled.
 
 
 *** 𝑥MK

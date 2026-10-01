@@ -78,7 +78,6 @@ static const uint8_t herdr_notes[] = {
     [AG_AGENT_NEXT - QK_USER_0]   = 122,
     [AG_ACCEPT - QK_USER_0]       = 124,
     [AG_REJECT - QK_USER_0]       = 125,
-    [AG_PROMPT - QK_USER_0]       = 126,
     [AG_CLEAR - QK_USER_0]        = 127,
     [AG_AGENT_PREV - QK_USER_0]   = 110,
     [AG_AGENT_URGENT - QK_USER_0] = 111,
@@ -350,7 +349,6 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
 
     // These hand focus back to the agent, so return to typing.
     switch (keycode) {
-        case AG_PROMPT:
         case AG_ACCEPT:
         case AG_REJECT:
         case AG_CLEAR:
