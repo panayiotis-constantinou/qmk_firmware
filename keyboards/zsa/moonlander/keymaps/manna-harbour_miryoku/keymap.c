@@ -31,7 +31,10 @@ bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 bool rgb_matrix_indicators_user(void) {
     if (!keyboard_config.disable_layer_led) {
         int layer = biton32(layer_state);
-        if (layer == 0 || (layer >= 4 && layer <= 9)) {
+        if (layer == U_AGENT) {
+            rgb_matrix_set_color_all(0, 0, 0);
+            set_agent_layer_colors_miryoku(miryoku_to_led);
+        } else if (layer == 0 || (layer >= 4 && layer <= 9)) {
             set_layer_color_miryoku(layer, miryoku_to_led);
         } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
             rgb_matrix_set_color_all(0, 0, 0);

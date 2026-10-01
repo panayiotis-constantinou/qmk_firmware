@@ -5,7 +5,9 @@
 #ifdef RGB_MATRIX_ENABLE
 
 #include "quantum.h"
+#include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
+#include "herdr.h"
 
 extern rgb_config_t rgb_matrix_config;
 
@@ -46,6 +48,46 @@ void set_layer_color_miryoku(int layer, const uint8_t *led_map) {
         }
     }
 }
+
+#ifdef HERDR_AGENT_ENABLE
+void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
+    RGB rgb = hsv_to_rgb_with_value((HSV){CTP_HSV_SURFACE});
+    for (int i = 0; i < MIRYOKU_KEY_COUNT; i++) {
+        rgb_matrix_set_color(led_map[i], rgb.r, rgb.g, rgb.b);
+    }
+
+#define SET_AGENT_KEY(index, hue) do { \
+    rgb = hsv_to_rgb_with_value((HSV){hue, MIRYOKU_CTP_SAT, 180}); \
+    rgb_matrix_set_color(led_map[index], rgb.r, rgb.g, rgb.b); \
+} while (0)
+    SET_AGENT_KEY( 6, CTP_GREEN);    // new workspace
+    SET_AGENT_KEY( 7, CTP_GREEN);    // new tab
+    SET_AGENT_KEY(11, CTP_PEACH);    // clear
+    SET_AGENT_KEY(12, CTP_RED);      // reject
+    SET_AGENT_KEY(13, CTP_BLUE);     // prompt
+    SET_AGENT_KEY(15, CTP_MAUVE);    // agent picker
+    SET_AGENT_KEY(16, CTP_YELLOW);   // pane left
+    SET_AGENT_KEY(17, CTP_YELLOW);   // pane down
+    SET_AGENT_KEY(18, CTP_YELLOW);   // pane up
+    SET_AGENT_KEY(19, CTP_YELLOW);   // pane right
+    SET_AGENT_KEY(20, CTP_TEAL);     // scratchpad
+    SET_AGENT_KEY(21, CTP_PEACH);    // hunk diff
+    SET_AGENT_KEY(22, CTP_PEACH);    // lazygit
+    SET_AGENT_KEY(23, CTP_MAUVE);    // command palette
+    SET_AGENT_KEY(25, CTP_YELLOW);   // pane zoom
+    SET_AGENT_KEY(26, CTP_MAUVE);    // previous workspace
+    SET_AGENT_KEY(27, CTP_SAPPHIRE); // previous tab
+    SET_AGENT_KEY(28, CTP_SAPPHIRE); // next tab
+    SET_AGENT_KEY(29, CTP_MAUVE);    // next workspace
+    SET_AGENT_KEY(30, CTP_RED);      // escape
+    SET_AGENT_KEY(31, CTP_MAUVE);    // previous agent
+    SET_AGENT_KEY(32, CTP_MAUVE);    // next agent
+    SET_AGENT_KEY(33, CTP_GREEN);    // accept
+    SET_AGENT_KEY(34, CTP_MAUVE);    // most urgent agent
+    SET_AGENT_KEY(35, CTP_MAROON);   // delete
+#undef SET_AGENT_KEY
+}
+#endif
 
 // ── Free-LED toggle indicators ───────────────────────────────────────────────
 

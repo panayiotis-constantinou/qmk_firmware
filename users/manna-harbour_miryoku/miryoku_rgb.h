@@ -29,6 +29,27 @@
 #define MIRYOKU_HSV_SCROLLLOCK  249, 218, 204
 #define MIRYOKU_HSV_JIGGLER      85, 255, 220
 
+// Catppuccin Mocha hues for the Herdr layer.  The Mocha accents are pastels
+// that wash out to white on LEDs, so they share one boosted saturation.
+#ifndef MIRYOKU_CTP_SAT
+#    define MIRYOKU_CTP_SAT 200
+#endif
+#define CTP_RED      243
+#define CTP_MAROON   248
+#define CTP_PEACH     16
+#define CTP_YELLOW    29
+#define CTP_GREEN     82
+#define CTP_TEAL     120
+#define CTP_SAPPHIRE 141
+#define CTP_BLUE     154
+#define CTP_MAUVE    189
+// Neutrals keep a low saturation of their own.
+#define CTP_HSV_TEXT_HUE 160
+#define CTP_HSV_TEXT_SAT  41
+#define CTP_HSV_TEXT     CTP_HSV_TEXT_HUE, CTP_HSV_TEXT_SAT, 244
+#define CTP_HSV_SURFACE  168, 120,  40
+#define CTP_HSV_OFF      163,  90,  32
+
 extern bool capslock_active;
 extern bool scrolllock_active;
 
@@ -36,6 +57,7 @@ extern bool scrolllock_active;
 RGB  hsv_to_rgb_with_value(HSV hsv);
 bool miryoku_led_update_user(led_t led_state);
 void set_layer_color_miryoku(int layer, const uint8_t *led_map);
+void set_agent_layer_colors_miryoku(const uint8_t *led_map);
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count);
 
 // ledmap[layer][miryoku_key_index][HSV]
