@@ -20,6 +20,7 @@
 #define HERDR_CC_SLOT_FIRST 112
 #define HERDR_CC_ECHO       116
 #define HERDR_CC_RISK       117
+#define HERDR_CC_ACTIVE     119 // bridge to keyboard: 1 active, 0 standby
 #define HERDR_PROTOCOL      3
 
 #ifndef HERDR_TIMEOUT_MS
@@ -80,6 +81,7 @@ static uint8_t  herdr_colors[HERDR_SLOT_COUNT];
 static uint8_t  herdr_risk;
 static uint32_t herdr_last_seen;
 static bool     herdr_seen;
+static bool     herdr_standby;
 static uint32_t herdr_last_chime;
 static bool     herdr_chimed;
 static uint16_t herdr_armed_key = KC_NO;
@@ -103,6 +105,9 @@ bool herdr_sounds_are_enabled(void) { return !(herdr_settings & HERDR_EE_SOUNDS_
 bool herdr_is_connected(void) {
     return herdr_seen && timer_elapsed32(herdr_last_seen) <= HERDR_TIMEOUT_MS;
 }
+
+// Another keyboard drives the bridge; this one mirrors state until claimed.
+static bool herdr_is_standby(void) { return herdr_standby && herdr_is_connected(); }
 
 uint8_t herdr_slot_state(uint8_t slot) { return herdr_slots[slot]; }
 uint8_t herdr_accept_risk(void) { return herdr_is_connected() ? herdr_risk : HERDR_RISK_NONE; }
@@ -139,6 +144,8 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
             return;
         }
         if (!herdr_is_connected()) {
+            // A bridge that never sends CC 119 must not inherit an old standby.
+            herdr_standby = false;
             if (herdr_sounds_are_enabled()) {
                 HERDR_PLAY(herdr_connected_song);
             }
@@ -160,6 +167,8 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         herdr_colors[number - HERDR_CC_SLOT_FIRST]  = (value >> 5) & 0x03;
     } else if (number == HERDR_CC_RISK) {
         herdr_risk = value <= HERDR_RISK_HIGH ? value : HERDR_RISK_UNKNOWN;
+    } else if (number == HERDR_CC_ACTIVE) {
+        herdr_standby = value == 0;
     }
 }
 
@@ -212,6 +221,14 @@ bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
     }
 
     herdr_flag_dropped(record);
+
+    // On a standby board the press only claims it: the bridge swallows the
+    // note, so skip the arming and layer exit a real action would bring.
+    if (herdr_is_standby()) {
+        herdr_armed_key = KC_NO;
+        midi_send_noteon(&midi_device, HERDR_MIDI_CHANNEL, note, HERDR_VELOCITY_TAP);
+        return false;
+    }
 
     // Accept needs the same confirmation when the bridge rates the approval as risky.
     bool confirm = keycode == AG_REJECT || keycode == AG_CLEAR ||
@@ -294,9 +311,9 @@ static void herdr_set_state_led(uint8_t led, uint8_t state, uint8_t reason, uint
     }
 }
 
-// One host connection LED (dim yellow connected, dim red disconnected) and
-// HERDR_SLOT_COUNT agent slot LEDs that stay dark while disconnected.  Once the
-// LEDs idle, only slots that need attention stay lit.
+// One host connection LED (dim yellow active, dim blue standby, dim red
+// disconnected) and HERDR_SLOT_COUNT agent slot LEDs that stay dark while
+// disconnected.  Once the LEDs idle, only slots that need attention stay lit.
 void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
     bool idle = miryoku_leds_idle();
 
@@ -312,7 +329,8 @@ void herdr_render_status(uint8_t connection_led, const uint8_t *slot_leds) {
         return;
     }
     if (!idle) {
-        set_led_hsv(connection_led, (HSV){CTP_YELLOW, MIRYOKU_CTP_SAT, 64});
+        // Yellow on the board the bridge follows, blue on a standby board.
+        set_led_hsv(connection_led, (HSV){herdr_is_standby() ? CTP_BLUE : CTP_YELLOW, MIRYOKU_CTP_SAT, 64});
     }
     for (uint8_t i = 0; i < HERDR_SLOT_COUNT; ++i) {
         if (!idle || herdr_slots[i] != HERDR_IDLE) {
