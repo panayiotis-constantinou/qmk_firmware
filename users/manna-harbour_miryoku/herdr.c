@@ -16,6 +16,7 @@
 
 #define HERDR_MIDI_CHANNEL  14 // QMK channels are zero-based: MIDI channel 15
 #define HERDR_CC_HEARTBEAT  110
+#define HERDR_CC_STATE      111
 #define HERDR_CC_SLOT_FIRST 112
 #define HERDR_CC_ECHO       116
 #define HERDR_PROTOCOL      3
@@ -23,7 +24,21 @@
 #ifndef HERDR_TIMEOUT_MS
 #    define HERDR_TIMEOUT_MS 3000
 #endif
+// Swallow a repeated chime, e.g. a state message redelivered by RTP-MIDI.
+#define HERDR_CHIME_DEBOUNCE_MS 1000
 #define HERDR_VELOCITY_TAP  127
+
+// eeconfig user bits 0-1 hold the OS override, and bits 2 and 4 held the
+// retired spinner and sort toggles; a zero bit keeps sounds on.
+#define HERDR_EE_SOUNDS_OFF    (1 << 3)
+#define HERDR_EE_MASK          HERDR_EE_SOUNDS_OFF
+
+// The state CC's aggregate state and its any-working and overflow flags (bits
+// 0-4) are not shown; the board only uses the chime flags.
+enum herdr_flags {
+    HERDR_CHIME_DONE  = 1 << 5,
+    HERDR_CHIME_BLOCK = 1 << 6,
+};
 
 // Keycode -> note.  Numbers match the bridge's control table; 0 means no note.
 static const uint8_t herdr_notes[] = {
@@ -52,16 +67,46 @@ static const uint8_t herdr_notes[] = {
     [AG_AGENT_URGENT - QK_USER_0] = 111,
 };
 
+static uint32_t herdr_settings;
 static uint8_t  herdr_slots[HERDR_SLOT_COUNT] = {HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY, HERDR_EMPTY};
 static uint8_t  herdr_colors[HERDR_SLOT_COUNT];
 static uint32_t herdr_last_seen;
 static bool     herdr_seen;
+static uint32_t herdr_last_chime;
+static bool     herdr_chimed;
+
+#ifdef AUDIO_ENABLE
+static float herdr_connected_song[][2] = {{NOTE_E6, 8}, {NOTE_A6, 8}};
+static float herdr_done_song[][2]      = {{NOTE_E6, 4}, {NOTE_A6, 4}, {NOTE_E7, 8}};
+static float herdr_blocked_song[][2]   = {{NOTE_A5, 8}, {NOTE_A5, 8}};
+#    define HERDR_PLAY(song) PLAY_SONG(song)
+#else
+#    define HERDR_PLAY(song)
+#endif
+
+bool herdr_sounds_are_enabled(void) { return !(herdr_settings & HERDR_EE_SOUNDS_OFF); }
 
 bool herdr_is_connected(void) {
     return herdr_seen && timer_elapsed32(herdr_last_seen) <= HERDR_TIMEOUT_MS;
 }
 
 uint8_t herdr_slot_state(uint8_t slot) { return herdr_slots[slot]; }
+
+static void herdr_chime(uint8_t value) {
+    if (!(value & (HERDR_CHIME_BLOCK | HERDR_CHIME_DONE)) || !herdr_sounds_are_enabled()) {
+        return;
+    }
+    if (herdr_chimed && timer_elapsed32(herdr_last_chime) < HERDR_CHIME_DEBOUNCE_MS) {
+        return;
+    }
+    herdr_chimed     = true;
+    herdr_last_chime = timer_read32();
+    if (value & HERDR_CHIME_BLOCK) {
+        HERDR_PLAY(herdr_blocked_song);
+    } else {
+        HERDR_PLAY(herdr_done_song);
+    }
+}
 
 static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, uint8_t value) {
     if (channel != HERDR_MIDI_CHANNEL) {
@@ -74,6 +119,11 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         if (value != HERDR_PROTOCOL) {
             return;
         }
+        if (!herdr_is_connected()) {
+            if (herdr_sounds_are_enabled()) {
+                HERDR_PLAY(herdr_connected_song);
+            }
+        }
         herdr_seen      = true;
         herdr_last_seen = timer_read32();
         midi_send_cc(device, HERDR_MIDI_CHANNEL, HERDR_CC_ECHO, HERDR_PROTOCOL);
@@ -83,14 +133,22 @@ static void herdr_midi_cc(MidiDevice *device, uint8_t channel, uint8_t number, u
         return;
     }
 
-    if (number >= HERDR_CC_SLOT_FIRST && number < HERDR_CC_SLOT_FIRST + HERDR_SLOT_COUNT) {
+    if (number == HERDR_CC_STATE) {
+        herdr_chime(value);
+    } else if (number >= HERDR_CC_SLOT_FIRST && number < HERDR_CC_SLOT_FIRST + HERDR_SLOT_COUNT) {
         herdr_slots[number - HERDR_CC_SLOT_FIRST]   = value & 0x07;
         herdr_colors[number - HERDR_CC_SLOT_FIRST]  = (value >> 5) & 0x03;
     }
 }
 
 void herdr_init(void) {
+    herdr_settings = eeconfig_read_user() & HERDR_EE_MASK;
     midi_register_cc_callback(&midi_device, herdr_midi_cc);
+}
+
+static void herdr_toggle_setting(uint32_t bit) {
+    herdr_settings ^= bit;
+    eeconfig_update_user((eeconfig_read_user() & ~HERDR_EE_MASK) | herdr_settings);
 }
 
 static uint8_t herdr_note(uint16_t keycode) {
@@ -101,6 +159,13 @@ static uint8_t herdr_note(uint16_t keycode) {
 }
 
 bool process_record_herdr(uint16_t keycode, keyrecord_t *record) {
+    if (keycode == AG_SOUND_TOGGLE) {
+        if (record->event.pressed) {
+            herdr_toggle_setting(HERDR_EE_SOUNDS_OFF);
+        }
+        return false;
+    }
+
     uint8_t note = herdr_note(keycode);
     if (!note) {
         return true;

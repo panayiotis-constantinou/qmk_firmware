@@ -30,6 +30,7 @@
 #define AG_CLEAR        QK_USER_22
 #define AG_AGENT_PREV   QK_USER_23
 #define AG_AGENT_URGENT QK_USER_24
+#define AG_SOUND_TOGGLE QK_USER_30
 
 // Append the common agent control layer to every enabled Miryoku keymap.
 #define MIRYOKU_LAYER_LIST \
@@ -50,7 +51,7 @@ MIRYOKU_X(AGENT,  "Herdr")
 // agent replies on home, tools below.  Thumbs cycle agents on the left and
 // Accept sits where Enter is.
 #define MIRYOKU_LAYER_AGENT \
-    U_NU, U_NU, U_NU, U_NU, U_NU, U_NU, AG_WS_NEW, AG_TAB_NEW, U_NU, U_NU, \
+    U_NU, U_NU, U_NU, U_NU, U_NU, U_NU, AG_WS_NEW, AG_TAB_NEW, U_NU, AG_SOUND_TOGGLE, \
     U_NU, AG_CLEAR, AG_REJECT, AG_PROMPT, U_NU, AG_AGENT_PICKER, AG_PANE_LEFT, AG_PANE_DOWN, AG_PANE_UP, AG_PANE_RIGHT, \
     AG_SCRATCHPAD, AG_HUNK, AG_LAZYGIT, AG_PALETTE, U_NU, AG_PANE_ZOOM, AG_WS_PREV, AG_TAB_PREV, AG_TAB_NEXT, AG_WS_NEXT, \
     U_NP, U_NP, LT(U_MEDIA, KC_ESC), AG_AGENT_PREV, AG_AGENT_NEXT, AG_ACCEPT, AG_AGENT_URGENT, LT(U_FUN, KC_DEL), U_NP, U_NP

@@ -90,6 +90,10 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     SET_AGENT_KEY(34, CTP_MAUVE);    // most urgent agent
     SET_AGENT_KEY(35, CTP_MAROON);   // delete
 #undef SET_AGENT_KEY
+
+    rgb = hsv_to_rgb_with_value(herdr_sounds_are_enabled() ?
+        (HSV){CTP_GREEN, MIRYOKU_CTP_SAT, 180} : (HSV){CTP_HSV_OFF});
+    rgb_matrix_set_color(led_map[9], rgb.r, rgb.g, rgb.b);
 }
 #endif
 
