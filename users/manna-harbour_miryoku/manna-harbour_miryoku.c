@@ -124,6 +124,19 @@ void keyboard_post_init_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef RGB_LAYER_COLORS
+    if (keycode == RGB_LAYER_COLORS) {
+        if (record->event.pressed) {
+            rgb_matrix_enable();
+            rgb_matrix_set_flags(LED_FLAG_ALL);
+            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
+            keyboard_config.rgb_matrix_enable = true;
+            keyboard_config.disable_layer_led = false;
+            eeconfig_update_kb(keyboard_config.raw);
+        }
+        return false;
+    }
+#endif
     if (!process_record_mouse_jiggler(keycode, record)) {
         return false;
     }

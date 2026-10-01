@@ -26,7 +26,7 @@ static const uint8_t free_to_led[] = {
 bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
 
 bool rgb_matrix_indicators_user(void) {
-    if (!keyboard_config.disable_layer_led) {
+    if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR) {
         int layer = biton32(layer_state);
         if (layer == 0 || (layer >= 4 && layer <= 9)) {
             set_layer_color_miryoku(layer, miryoku_to_led);
