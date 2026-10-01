@@ -78,6 +78,7 @@ static const uint8_t herdr_notes[] = {
     [AG_PANE_CLOSE - QK_USER_0]   = 112,
     [AG_TAB_CLOSE - QK_USER_0]    = 113,
     [AG_WS_CLOSE - QK_USER_0]     = 114,
+    [AG_PANE_SPLIT - QK_USER_0]   = 115,
 };
 
 static uint32_t herdr_settings;

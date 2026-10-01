@@ -90,6 +90,7 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
     SET_AGENT_KEY( 3, CTP_MAROON);   // close workspace
     SET_AGENT_KEY( 6, CTP_GREEN);    // new workspace
     SET_AGENT_KEY( 7, CTP_GREEN);    // new tab
+    SET_AGENT_KEY( 8, CTP_GREEN);    // split pane
     SET_AGENT_KEY(11, CTP_PEACH);    // clear
     SET_AGENT_KEY(12, CTP_RED);      // reject
     SET_AGENT_KEY(13, CTP_BLUE);     // prompt
