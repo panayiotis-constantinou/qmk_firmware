@@ -5,6 +5,11 @@
 
 #pragma once
 
+// Miryoku's Media layer puts OU_AUTO (USB/Bluetooth output selection) on the
+// bottom row; these boards are USB only, so it cycles the OS mode for the
+// clipboard keys instead: auto-detect, Mac, Linux.
+#define U_OS_CYCLE OU_AUTO
+
 #ifdef HERDR_AGENT_ENABLE
 
 #define AG_WS_PREV      QK_USER_1

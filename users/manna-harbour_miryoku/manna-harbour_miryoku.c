@@ -162,8 +162,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_record_mouse_jiggler(keycode, record)) {
         return false;
     }
-    // QK_OUTPUT_AUTO cycles OS override: AUTO -> FORCE_MAC -> FORCE_LINUX -> AUTO
-    if (keycode == QK_OUTPUT_AUTO) {
+    // Cycle the OS override: AUTO -> FORCE_MAC -> FORCE_LINUX -> AUTO
+    if (keycode == U_OS_CYCLE) {
         if (record->event.pressed) {
             os_override = (os_override_t)((os_override + 1) % 3);
             eeconfig_update_user((eeconfig_read_user() & ~OS_OVERRIDE_MASK) | os_override);
