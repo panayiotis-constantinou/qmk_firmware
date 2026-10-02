@@ -305,7 +305,7 @@
     TD(U_TD_BOOT),         U_CUT,                 U_CPY,                 U_PST,                 U_NA,                  U_NU,                  U_UND,                 MS_UP,                 U_RDO,                 U_NP, \
     KC_LGUI,               KC_LALT,               KC_LCTL,               KC_LSFT,               U_NA,                  U_NU,                  MS_LEFT,               MS_DOWN,               MS_RGHT,               U_NP, \
     U_NA,                  KC_ALGR,               TD(U_TD_U_SYM),        TD(U_TD_U_MOUSE),      U_NA,                  MJ_TOGG,               MS_WHLL,               MS_WHLD,               MS_WHLU,               MS_WHLR, \
-    U_NP,                  U_NP,                  U_NA,                  QK_BOOTLOADER,         U_NA,                  MS_BTN2,               MS_BTN1,               MS_BTN3,               U_NP,                  U_NP
+    U_NP,                  U_NP,                  U_NA,                  TD(U_TD_BOOT),         U_NA,                  MS_BTN2,               MS_BTN1,               MS_BTN3,               U_NP,                  U_NP
 
 #define MIRYOKU_ALTERNATIVES_MEDIA_INVERTEDT_FLIP \
     RGB_HUI,               RGB_SAI,               KC_VOLU,               U_NA,                  U_NA,                  U_NA,                  TD(U_TD_U_BASE),       TD(U_TD_U_EXTRA),      TD(U_TD_U_TAP),        TD(U_TD_BOOT), \
