@@ -34,8 +34,6 @@ static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
 // Slot sort mode on the right's innermost number-row key.
 #define HERDR_SORT_LED 65
 
-bool led_update_user(led_t s) { return miryoku_led_update_user(s); }
-
 bool rgb_matrix_indicators_user(void) {
     if (miryoku_leds_idle()) {
         rgb_matrix_set_color_all(0, 0, 0);

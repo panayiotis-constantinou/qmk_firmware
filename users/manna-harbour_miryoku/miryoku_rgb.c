@@ -11,17 +11,6 @@
 
 extern rgb_config_t rgb_matrix_config;
 
-// ── Capslock / Scrolllock state ──────────────────────────────────────────────
-
-bool capslock_active   = false;
-bool scrolllock_active = false;
-
-bool miryoku_led_update_user(led_t led_state) {
-    capslock_active   = led_state.caps_lock;
-    scrolllock_active = led_state.scroll_lock;
-    return true;
-}
-
 bool miryoku_leds_idle(void) {
     return last_input_activity_elapsed() > MIRYOKU_LED_IDLE_TIMEOUT;
 }
@@ -141,12 +130,13 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
 // ── Free-LED toggle indicators ───────────────────────────────────────────────
 
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count) {
-    if (capslock_active) {
+    led_t host = host_keyboard_led_state();
+    if (host.caps_lock) {
         RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_CAPSLOCK});
         for (int i = MIRYOKU_FREE_CAPSLOCK; i < count; i += MIRYOKU_FREE_LED_COUNT)
             rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
     }
-    if (scrolllock_active) {
+    if (host.scroll_lock) {
         RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_SCROLLLOCK});
         for (int i = MIRYOKU_FREE_SCROLLLOCK; i < count; i += MIRYOKU_FREE_LED_COUNT)
             rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);

@@ -56,12 +56,8 @@
 #    define MIRYOKU_LED_IDLE_TIMEOUT 600000
 #endif
 
-extern bool capslock_active;
-extern bool scrolllock_active;
-
 // Shared helpers
 RGB  hsv_to_rgb_with_value(HSV hsv);
-bool miryoku_led_update_user(led_t led_state);
 bool miryoku_leds_idle(void);
 void set_layer_color_miryoku(int layer, const uint8_t *led_map);
 void set_agent_layer_colors_miryoku(const uint8_t *led_map);

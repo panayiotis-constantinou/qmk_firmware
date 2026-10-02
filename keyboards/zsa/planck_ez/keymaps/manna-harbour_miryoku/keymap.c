@@ -43,8 +43,6 @@ static void render_herdr(void) {
     herdr_render_dropped_press();
 }
 
-bool led_update_user(led_t state) { return miryoku_led_update_user(state); }
-
 bool rgb_matrix_indicators_user(void) {
     if (miryoku_leds_idle()) {
         rgb_matrix_set_color_all(0, 0, 0);
