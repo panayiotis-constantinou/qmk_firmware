@@ -170,14 +170,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
     }
-    // In Mac mode: intercept Ctrl+clipboard keys and send Cmd instead
+    // Miryoku's clipboard keys send the CUA shortcuts (Ctrl/Shift+Insert,
+    // Shift+Delete, Undo, Again) by default, which macOS and iPadOS ignore; in
+    // Mac mode send the Cmd shortcuts instead.
     if (is_mac_mode()) {
         switch (keycode) {
-            case C(KC_C): if (record->event.pressed) tap_code16(LGUI(KC_C)); return false;
-            case C(KC_X): if (record->event.pressed) tap_code16(LGUI(KC_X)); return false;
-            case C(KC_V): if (record->event.pressed) tap_code16(LGUI(KC_V)); return false;
-            case C(KC_Z): if (record->event.pressed) tap_code16(LGUI(KC_Z)); return false;
-            case C(KC_Y): if (record->event.pressed) tap_code16(SCMD(KC_Z)); return false;
+            case U_CPY: if (record->event.pressed) tap_code16(LGUI(KC_C)); return false;
+            case U_CUT: if (record->event.pressed) tap_code16(LGUI(KC_X)); return false;
+            case U_PST: if (record->event.pressed) tap_code16(LGUI(KC_V)); return false;
+            case U_UND: if (record->event.pressed) tap_code16(LGUI(KC_Z)); return false;
+            case U_RDO: if (record->event.pressed) tap_code16(SCMD(KC_Z)); return false;
         }
     }
     return true;
