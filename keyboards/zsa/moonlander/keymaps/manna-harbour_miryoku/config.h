@@ -1,5 +1,3 @@
-// generated from users/manna-harbour_miryoku/miryoku.org
-
 #pragma once
 
 // Map Miryoku's 36-key layout onto the Moonlander's 72-key matrix.

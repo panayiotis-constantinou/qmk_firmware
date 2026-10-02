@@ -14,10 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// generated from users/manna-harbour_miryoku/miryoku.org  -*- buffer-read-only: t -*-
+// Copied from QMK's 3w6 Miryoku keymap, which Miryoku generated upstream.
 
 #pragma once
 
+// Map Miryoku's 36-key layout onto the 3w6hs's split 3x5+3 layout.
 #define LAYOUT_miryoku( \
        K00,   K01,   K02,   K03,   K04,   K05,   K06,   K07,   K08,   K09, \
        K10,   K11,   K12,   K13,   K14,   K15,   K16,   K17,   K18,   K19, \

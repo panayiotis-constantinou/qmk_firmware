@@ -14,5 +14,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// OS detection, clipboard remapping, and mouse jiggler are provided by
-// users/manna-harbour_miryoku/ userspace.
+// QMK needs a keymap.c; the keymap itself is in users/manna-harbour_miryoku.

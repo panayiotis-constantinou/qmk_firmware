@@ -1,5 +1,3 @@
-// generated from users/manna-harbour_miryoku/miryoku.org
-
 #pragma once
 
 // Map Miryoku's 36-key layout onto the Planck EZ's 48-key grid (4x12).

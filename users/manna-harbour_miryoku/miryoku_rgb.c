@@ -1,6 +1,5 @@
-// Copyright 2024 Manna Harbour
-// https://github.com/manna-harbour/miryoku
-// Shared RGB matrix implementation for manna-harbour_miryoku keyboards
+// Shared RGB matrix code for the Miryoku ZSA keymaps: layer colors, toggle
+// indicators, and the Herdr layer.
 
 #ifdef RGB_MATRIX_ENABLE
 
