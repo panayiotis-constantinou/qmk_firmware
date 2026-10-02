@@ -3,6 +3,7 @@
 
 OS_DETECTION_ENABLE = yes
 OS_DETECTION_SINGLE_REPORT = yes
+SRC += users/manna-harbour_miryoku/user_hooks.c
 SRC += users/manna-harbour_miryoku/mouse_jiggler.c
 
 ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
