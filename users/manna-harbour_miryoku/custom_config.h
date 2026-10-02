@@ -10,6 +10,24 @@
 // clipboard keys instead: auto-detect, Mac, Linux.
 #define U_OS_CYCLE OU_AUTO
 
+#ifdef RGB_MATRIX_ENABLE
+
+#define RGB_LAYER_COLORS QK_USER_0
+
+// Media layer with LED controls in place of Miryoku's RGB keys: B restores the
+// layer colors after an effect; J toggles the LEDs; L/U cycle effects; Y/'
+// adjust their speed.
+#define MIRYOKU_LAYER_MEDIA \
+    TD(U_TD_BOOT), TD(U_TD_U_TAP), TD(U_TD_U_EXTRA), TD(U_TD_U_BASE), RGB_LAYER_COLORS, \
+    RM_TOGG, RM_NEXT, RM_PREV, RM_SPDU, RM_SPDD, \
+    KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, U_NA, \
+    U_NU, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, \
+    U_NA, KC_ALGR, TD(U_TD_U_FUN), TD(U_TD_U_MEDIA), U_NA, \
+    U_OS_CYCLE, U_NU, U_NU, U_NU, U_NU, \
+    U_NP, U_NP, U_NA, U_NA, U_NA, KC_MSTP, KC_MPLY, KC_MUTE, U_NP, U_NP
+
+#endif
+
 #ifdef HERDR_AGENT_ENABLE
 
 #define AG_WS_PREV      QK_USER_1
