@@ -5,6 +5,68 @@
 
 #pragma once
 
+// The vendored Miryoku layers (QMK's last in-tree copy) still use keycode
+// names QMK has since removed.
+#define KC_BTN1 MS_BTN1
+#define KC_BTN2 MS_BTN2
+#define KC_BTN3 MS_BTN3
+#define KC_MS_L MS_LEFT
+#define KC_MS_D MS_DOWN
+#define KC_MS_U MS_UP
+#define KC_MS_R MS_RGHT
+#define KC_WH_L MS_WHLL
+#define KC_WH_D MS_WHLD
+#define KC_WH_U MS_WHLU
+#define KC_WH_R MS_WHLR
+#define RGB_TOG RM_TOGG
+#define RGB_MOD RM_NEXT
+#define RGB_HUI RM_HUEU
+#define RGB_SAI RM_SATU
+#define RGB_VAI RM_VALU
+
+// Personal Nav, Mouse, and Num layers in place of Miryoku's defaults; the
+// FLIP, INVERTEDT, and VI alternatives stay Miryoku's.
+#if !defined (MIRYOKU_LAYERS_FLIP)
+  #if !defined (MIRYOKU_NAV_INVERTEDT) && !defined (MIRYOKU_NAV_VI)
+
+// Caps Word on the left index finger's top key, Caps Lock below it on the
+// inner home key, and Mission Control on the left pinky's bottom key.
+#define MIRYOKU_LAYER_NAV \
+    TD(U_TD_BOOT), TD(U_TD_U_TAP), TD(U_TD_U_EXTRA), CW_TOGG, U_NA, \
+    U_RDO, U_PST, U_CPY, U_CUT, U_UND, \
+    KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, KC_CAPS, \
+    CW_TOGG, KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, \
+    KC_MCTL, KC_ALGR, TD(U_TD_U_NUM), TD(U_TD_U_NAV), U_NA, \
+    KC_INS, KC_HOME, KC_PGDN, KC_PGUP, KC_END, \
+    U_NP, U_NP, U_NA, U_NA, U_NA, KC_ENT, KC_BSPC, KC_DEL, U_NP, U_NP
+
+// Cut, copy, and paste on the left top row in place of the layer tap dances;
+// mouse movement as an inverted T on the right, with undo and redo either side
+// of up; the jiggler toggle on the right inner bottom key; and a double-tap
+// bootloader on the Space thumb.
+#define MIRYOKU_LAYER_MOUSE \
+    TD(U_TD_BOOT), U_CUT, U_CPY, U_PST, U_NA, \
+    U_NU, U_UND, MS_UP, U_RDO, U_NU, \
+    KC_LGUI, KC_LALT, KC_LCTL, KC_LSFT, U_NA, \
+    U_NU, MS_LEFT, MS_DOWN, MS_RGHT, U_NU, \
+    U_NA, KC_ALGR, TD(U_TD_U_SYM), TD(U_TD_U_MOUSE), U_NA, \
+    MJ_TOGG, MS_WHLL, MS_WHLD, MS_WHLU, MS_WHLR, \
+    U_NP, U_NP, U_NA, TD(U_TD_BOOT), U_NA, MS_BTN2, MS_BTN1, MS_BTN3, U_NP, U_NP
+
+  #endif
+
+// Calculator operators on the right top row in place of the layer tap dances.
+#define MIRYOKU_LAYER_NUM \
+    KC_LBRC, KC_7, KC_8, KC_9, KC_RBRC, \
+    U_NA, KC_PLUS, KC_MINS, KC_ASTR, KC_SLSH, \
+    KC_SCLN, KC_4, KC_5, KC_6, KC_EQL, \
+    U_NA, KC_LSFT, KC_LCTL, KC_LALT, KC_LGUI, \
+    KC_GRV, KC_1, KC_2, KC_3, KC_BSLS, \
+    U_NA, TD(U_TD_U_NUM), TD(U_TD_U_NAV), KC_ALGR, U_NA, \
+    U_NP, U_NP, KC_DOT, KC_0, KC_MINS, U_NA, U_NA, U_NA, U_NP, U_NP
+
+#endif
+
 // Miryoku's Media layer puts OU_AUTO (USB/Bluetooth output selection) on the
 // bottom row; these boards are USB only, so it cycles the OS mode for the
 // clipboard keys instead: auto-detect, Mac, Linux.
