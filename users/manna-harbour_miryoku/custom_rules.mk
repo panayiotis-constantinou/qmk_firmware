@@ -11,6 +11,7 @@ ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
 endif
 
 ifeq ($(strip $(HERDR_AGENT_ENABLE)), yes)
+  COMBO_ENABLE = yes
   MIDI_ENABLE = yes
   OPT_DEFS += -DHERDR_AGENT_ENABLE
   SRC += users/manna-harbour_miryoku/herdr.c
