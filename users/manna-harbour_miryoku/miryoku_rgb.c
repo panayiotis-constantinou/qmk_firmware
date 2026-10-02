@@ -9,8 +9,6 @@
 #include "miryoku_rgb.h"
 #include "herdr.h"
 
-extern rgb_config_t rgb_matrix_config;
-
 bool miryoku_leds_idle(void) {
     return last_input_activity_elapsed() > MIRYOKU_LED_IDLE_TIMEOUT;
 }
@@ -18,9 +16,9 @@ bool miryoku_leds_idle(void) {
 // ── HSV → RGB scaled by current brightness ──────────────────────────────────
 
 RGB hsv_to_rgb_with_value(HSV hsv) {
-    RGB   rgb = hsv_to_rgb(hsv);
-    float f   = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-    return (RGB){f * rgb.r, f * rgb.g, f * rgb.b};
+    RGB     rgb = hsv_to_rgb(hsv);
+    uint8_t v   = rgb_matrix_get_val();
+    return (RGB){rgb.r * v / UINT8_MAX, rgb.g * v / UINT8_MAX, rgb.b * v / UINT8_MAX};
 }
 
 // ── Per-layer color setter ───────────────────────────────────────────────────

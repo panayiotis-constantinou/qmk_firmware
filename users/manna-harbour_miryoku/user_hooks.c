@@ -35,7 +35,8 @@ void keyboard_post_init_user(void) {
     herdr_init();
 #endif
 #ifdef RGB_MATRIX_ENABLE
-    rgb_matrix_enable();
+    // Light the LEDs at boot without saving that over a toggled-off state.
+    rgb_matrix_enable_noeeprom();
 #endif
 }
 
