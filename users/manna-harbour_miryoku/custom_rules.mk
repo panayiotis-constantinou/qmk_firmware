@@ -1,6 +1,13 @@
 # Copyright 2019 Manna Harbour
 # https://github.com/manna-harbour/miryoku
 
+OS_DETECTION_ENABLE = yes
+OS_DETECTION_SINGLE_REPORT = yes
+SRC += users/manna-harbour_miryoku/mouse_jiggler.c
+
+ifeq ($(strip $(RGB_MATRIX_ENABLE)), yes)
+  SRC += users/manna-harbour_miryoku/miryoku_rgb.c
+endif
 
 ifeq ($(strip $(HERDR_AGENT_ENABLE)), yes)
   MIDI_ENABLE = yes
