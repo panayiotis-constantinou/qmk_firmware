@@ -11,7 +11,8 @@
 #undef TAPPING_TERM
 #define TAPPING_TERM 200
 
-// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
+
+// Tap then hold within 120 ms to auto-repeat the tap; a later hold is a hold.
 #define QUICK_TAP_TERM 120
 
 // Auto Shift
@@ -33,11 +34,6 @@
 
 // Thumb Combos
 #if defined (MIRYOKU_KLUDGE_THUMBCOMBOS)
-  #ifdef HERDR_AGENT_ENABLE
-    #define COMBO_COUNT 9
-  #else
-    #define COMBO_COUNT 8
-  #endif
   #define COMBO_TERM 200
   #define EXTRA_SHORT_COMBOS
 #endif
