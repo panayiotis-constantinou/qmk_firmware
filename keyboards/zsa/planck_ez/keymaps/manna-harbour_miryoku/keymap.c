@@ -51,8 +51,8 @@ bool rgb_matrix_indicators_user(void) {
         return true;
     }
     if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR) {
-        int layer = biton32(layer_state);
-        if (layer == 0 || (layer >= 4 && layer <= 9)) {
+        uint8_t layer = get_highest_layer(layer_state);
+        if (miryoku_layer_has_colors(layer)) {
             set_layer_color_miryoku(layer, miryoku_to_led);
         } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
             rgb_matrix_set_color_all(0, 0, 0);

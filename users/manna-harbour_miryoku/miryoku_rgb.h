@@ -59,12 +59,13 @@
 // Shared helpers
 RGB  hsv_to_rgb_with_value(HSV hsv);
 bool miryoku_leds_idle(void);
-void set_layer_color_miryoku(int layer, const uint8_t *led_map);
+bool miryoku_layer_has_colors(uint8_t layer);
+void set_layer_color_miryoku(uint8_t layer, const uint8_t *led_map);
 void set_agent_layer_colors_miryoku(const uint8_t *led_map);
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count);
 
-// ledmap[layer][miryoku_key_index][HSV]
-// layers: 0=U_BASE, 4=U_NAV, 5=U_MOUSE, 6=U_MEDIA, 7=U_NUM, 8=U_SYM, 9=U_FUN
+// ledmap[layer][miryoku_key_index][HSV], for layers miryoku_layer_has_colors
+// accepts.
 extern const uint8_t PROGMEM miryoku_ledmap[][MIRYOKU_KEY_COUNT][3];
 
 #endif // RGB_MATRIX_ENABLE
