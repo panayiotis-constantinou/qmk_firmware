@@ -4,7 +4,7 @@
 
 #ifdef RGB_MATRIX_ENABLE
 
-#include "quantum.h"
+#include QMK_KEYBOARD_H
 #include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
 #include "herdr.h"
@@ -152,6 +152,51 @@ void set_free_led_indicators(const uint8_t *free_leds, uint8_t count) {
         for (int i = MIRYOKU_FREE_JIGGLER; i < count; i += MIRYOKU_FREE_LED_COUNT)
             rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
     }
+}
+
+// ── Indicators ───────────────────────────────────────────────────────────────
+
+// Layer colors only show in solid color mode, so the Media layer's effects can
+// take over.  The Herdr layer's colors carry state (armed keys, holds, approval
+// risk), so they show whatever the mode or the layer LED setting.
+static void render_layer_colors(const uint8_t *keys) {
+    uint8_t layer = get_highest_layer(layer_state);
+#ifdef HERDR_AGENT_ENABLE
+    if (layer == U_AGENT) {
+        rgb_matrix_set_color_all(0, 0, 0);
+        set_agent_layer_colors_miryoku(keys);
+        return;
+    }
+#endif
+    if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR &&
+        miryoku_layer_has_colors(layer)) {
+        set_layer_color_miryoku(layer, keys);
+    } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
+        rgb_matrix_set_color_all(0, 0, 0);
+    }
+}
+
+bool miryoku_rgb_indicators(const miryoku_leds_t *leds) {
+    if (miryoku_leds_idle()) {
+        rgb_matrix_set_color_all(0, 0, 0);
+#ifdef HERDR_AGENT_ENABLE
+        herdr_render_status(leds->herdr_connection, leds->herdr_slots);
+        herdr_render_sort_mode(leds->herdr_sort);
+#endif
+        return true;
+    }
+
+    render_layer_colors(leds->keys);
+    for (uint8_t i = 0; i < leds->led_only_count; ++i) {
+        rgb_matrix_set_color(leds->led_only[i], 0, 0, 0);
+    }
+    set_free_led_indicators(leds->free_leds, leds->free_led_count);
+#ifdef HERDR_AGENT_ENABLE
+    herdr_render_status(leds->herdr_connection, leds->herdr_slots);
+    herdr_render_sort_mode(leds->herdr_sort);
+    herdr_render_dropped_press();
+#endif
+    return true;
 }
 
 // ── Ledmap: colors keyed by miryoku key index ────────────────────────────────

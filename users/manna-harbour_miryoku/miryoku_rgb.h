@@ -64,6 +64,22 @@ void set_layer_color_miryoku(uint8_t layer, const uint8_t *led_map);
 void set_agent_layer_colors_miryoku(const uint8_t *led_map);
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count);
 
+// Where a ZSA keyboard's LEDs sit, for miryoku_rgb_indicators().
+typedef struct {
+    const uint8_t *keys;             // Miryoku key index -> LED (MIRYOKU_KEY_COUNT)
+    const uint8_t *free_leds;        // toggle indicators, see MIRYOKU_FREE_*
+    uint8_t        free_led_count;
+    const uint8_t *led_only;         // positions without a switch, kept dark
+    uint8_t        led_only_count;
+    const uint8_t *herdr_slots;      // HERDR_SLOT_COUNT agent slots
+    uint8_t        herdr_connection; // host connection LED
+    uint8_t        herdr_sort;       // panel sort mode LED
+} miryoku_leds_t;
+
+// Draws the layer colors, toggle indicators, and Herdr status; a keymap's
+// rgb_matrix_indicators_user returns it.
+bool miryoku_rgb_indicators(const miryoku_leds_t *leds);
+
 // ledmap[layer][miryoku_key_index][HSV], for layers miryoku_layer_has_colors
 // accepts.
 extern const uint8_t PROGMEM miryoku_ledmap[][MIRYOKU_KEY_COUNT][3];

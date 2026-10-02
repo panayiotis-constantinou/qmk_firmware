@@ -1,10 +1,8 @@
 #include QMK_KEYBOARD_H
-#include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
 #include "herdr.h"
 
-// miryoku key index -> moonlander LED index (36 entries)
-// index 0-9=K00-K09, 10-19=K10-K19, 20-29=K20-K29, 30-32=K32-K34, 33-35=K35-K37
+// Miryoku key index -> Moonlander LED index (36 entries).
 static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
 //  K00  K01  K02  K03  K04    K05  K06  K07  K08  K09
       1,   6,  11,  16,  21,   57,  52,  47,  42,  37,
@@ -28,35 +26,16 @@ static const uint8_t free_to_led[] = {
 };
 
 // Agent slots down the left's spare column beside the index finger, top to
-// bottom; the host connection on the right's spare key beside K.
+// bottom.
 static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
-#define HERDR_CONNECTION_LED 64
-// Slot sort mode on the right's innermost number-row key.
-#define HERDR_SORT_LED 65
 
-bool rgb_matrix_indicators_user(void) {
-    if (miryoku_leds_idle()) {
-        rgb_matrix_set_color_all(0, 0, 0);
-        herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
-        herdr_render_sort_mode(HERDR_SORT_LED);
-        return true;
-    }
-    if (!keyboard_config.disable_layer_led) {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (layer == U_AGENT) {
-            rgb_matrix_set_color_all(0, 0, 0);
-            set_agent_layer_colors_miryoku(miryoku_to_led);
-        } else if (miryoku_layer_has_colors(layer)) {
-            set_layer_color_miryoku(layer, miryoku_to_led);
-        } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
-            rgb_matrix_set_color_all(0, 0, 0);
-        }
-    } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
-        rgb_matrix_set_color_all(0, 0, 0);
-    }
-    set_free_led_indicators(free_to_led, sizeof(free_to_led));
-    herdr_render_status(HERDR_CONNECTION_LED, herdr_slot_leds);
-    herdr_render_sort_mode(HERDR_SORT_LED);
-    herdr_render_dropped_press();
-    return true;
-}
+static const miryoku_leds_t leds = {
+    .keys             = miryoku_to_led,
+    .free_leds        = free_to_led,
+    .free_led_count   = ARRAY_SIZE(free_to_led),
+    .herdr_slots      = herdr_slot_leds,
+    .herdr_connection = 64, // the right's spare key beside K
+    .herdr_sort       = 65, // the right's innermost number-row key
+};
+
+bool rgb_matrix_indicators_user(void) { return miryoku_rgb_indicators(&leds); }

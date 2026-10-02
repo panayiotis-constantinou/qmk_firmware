@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include "manna-harbour_miryoku.h"
 #include "miryoku_rgb.h"
 #include "herdr.h"
 
@@ -21,45 +20,18 @@ static const uint8_t led_only_leds[] = {5, 6, 17, 18, 29, 30, 36, 37, 45, 46};
 // Caps Lock at the bottom-left corner, Scroll Lock at the center-block bottom
 // left, and mouse jiggler at the bottom-right corner.
 static const uint8_t free_to_led[] = {36, 29, 46};
-// Agent slots on the center block's top two rows, left to right; the sort mode
-// on the inner bottom-left LED, and the host connection on the space bar.
-static const uint8_t herdr_agent_leds[HERDR_SLOT_COUNT] = {5, 6, 17, 18};
-#define HERDR_CONNECTION_LED 41
-#define HERDR_SORT_LED 37
+// Agent slots on the center block's top two rows, left to right.
+static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {5, 6, 17, 18};
 
-static void render_herdr(void) {
-    for (uint8_t i = 0; i < ARRAY_SIZE(led_only_leds); ++i) {
-        rgb_matrix_set_color(led_only_leds[i], 0, 0, 0);
-    }
+static const miryoku_leds_t leds = {
+    .keys             = miryoku_to_led,
+    .free_leds        = free_to_led,
+    .free_led_count   = ARRAY_SIZE(free_to_led),
+    .led_only         = led_only_leds,
+    .led_only_count   = ARRAY_SIZE(led_only_leds),
+    .herdr_slots      = herdr_slot_leds,
+    .herdr_connection = 41, // the space bar
+    .herdr_sort       = 37, // the inner bottom-left LED
+};
 
-    if (layer_state_is(U_AGENT)) {
-        set_agent_layer_colors_miryoku(miryoku_to_led);
-    }
-
-    set_free_led_indicators(free_to_led, ARRAY_SIZE(free_to_led));
-
-    herdr_render_status(HERDR_CONNECTION_LED, herdr_agent_leds);
-    herdr_render_sort_mode(HERDR_SORT_LED);
-    herdr_render_dropped_press();
-}
-
-bool rgb_matrix_indicators_user(void) {
-    if (miryoku_leds_idle()) {
-        rgb_matrix_set_color_all(0, 0, 0);
-        herdr_render_status(HERDR_CONNECTION_LED, herdr_agent_leds);
-        herdr_render_sort_mode(HERDR_SORT_LED);
-        return true;
-    }
-    if (!keyboard_config.disable_layer_led && rgb_matrix_get_mode() == RGB_MATRIX_SOLID_COLOR) {
-        uint8_t layer = get_highest_layer(layer_state);
-        if (miryoku_layer_has_colors(layer)) {
-            set_layer_color_miryoku(layer, miryoku_to_led);
-        } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
-            rgb_matrix_set_color_all(0, 0, 0);
-        }
-    } else if (rgb_matrix_get_flags() == LED_FLAG_NONE) {
-        rgb_matrix_set_color_all(0, 0, 0);
-    }
-    render_herdr();
-    return true;
-}
+bool rgb_matrix_indicators_user(void) { return miryoku_rgb_indicators(&leds); }

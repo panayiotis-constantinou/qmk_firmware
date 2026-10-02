@@ -74,6 +74,9 @@
 
 #ifdef RGB_MATRIX_ENABLE
 
+// Layer colors only show in solid color mode.
+#define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
+
 #define RGB_LAYER_COLORS QK_USER_0
 
 // Media layer with LED controls in place of Miryoku's RGB keys: B restores the
