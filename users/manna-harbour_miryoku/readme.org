@@ -805,6 +805,13 @@ make waterfowl:manna-harbour_miryoku:flash
 Combo the primary and secondary thumb keys to emulate the tertiary thumb key.  Can be used on keyboards with missing or hard to reach tertiary thumb keys or for compatibility with same.  Requires suitable keycaps to enable the thumb to press both keys simultaneously.
 
 
+*** LED Layer Colors
+
+Enabled for the Planck EZ and Moonlander Miryoku keymaps.  The keys of the Base layer and of Nav through Fun light in each layer's colors, drawn from one shared color map; Extra, Tap, and Button stay unlit.  Layer colors only show in solid color mode, so an effect replaces them, while the Herdr layer's colors always show because they carry state.  Spare LEDs show Caps Lock, Scroll Lock, and the mouse jiggler; each keymap's readme says where.
+
+The Media layer replaces Miryoku's RGB keys with LED controls: the left inner index key on the top row (~B~ on Colemak-DH) restores the layer colors by turning the LEDs and layer colors back on in solid color mode, and the right top row toggles the LEDs (~J~), cycles to the next or previous effect (~L~, ~U~), and speeds the effect up or down (~Y~, ~'~).  A fresh EEPROM starts in solid color mode.
+
+
 *** Herdr MIDI Control Layer
 
 Enabled for the Planck EZ and Moonlander Miryoku keymaps.  Press the outer thumb ~ESC + DEL~ chord to enter or exit the layer; ESC and DEL keep their base-layer positions and tap actions.  Accept, Reject, and Clear hand focus back to the agent, so they also exit the layer.
