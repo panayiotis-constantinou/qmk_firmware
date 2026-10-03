@@ -132,22 +132,26 @@ void set_agent_layer_colors_miryoku(const uint8_t *led_map) {
 
 // ── Free-LED toggle indicators ───────────────────────────────────────────────
 
+// Lights one indicator on every half that gives it an LED.
+static void set_free_led(const uint8_t *free_leds, uint8_t count, uint8_t indicator, HSV hsv) {
+    RGB rgb = hsv_to_rgb_with_value(hsv);
+    for (uint8_t i = indicator; i < count; i += MIRYOKU_FREE_LED_COUNT) {
+        if (free_leds[i] != NO_LED) {
+            rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
+        }
+    }
+}
+
 void set_free_led_indicators(const uint8_t *free_leds, uint8_t count) {
     led_t host = host_keyboard_led_state();
     if (host.caps_lock) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_CAPSLOCK});
-        for (int i = MIRYOKU_FREE_CAPSLOCK; i < count; i += MIRYOKU_FREE_LED_COUNT)
-            rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
+        set_free_led(free_leds, count, MIRYOKU_FREE_CAPSLOCK, (HSV){MIRYOKU_HSV_CAPSLOCK});
     }
     if (host.scroll_lock) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_SCROLLLOCK});
-        for (int i = MIRYOKU_FREE_SCROLLLOCK; i < count; i += MIRYOKU_FREE_LED_COUNT)
-            rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
+        set_free_led(free_leds, count, MIRYOKU_FREE_SCROLLLOCK, (HSV){MIRYOKU_HSV_SCROLLLOCK});
     }
     if (mouse_jiggler_is_enabled()) {
-        RGB rgb = hsv_to_rgb_with_value((HSV){MIRYOKU_HSV_JIGGLER});
-        for (int i = MIRYOKU_FREE_JIGGLER; i < count; i += MIRYOKU_FREE_LED_COUNT)
-            rgb_matrix_set_color(free_leds[i], rgb.r, rgb.g, rgb.b);
+        set_free_led(free_leds, count, MIRYOKU_FREE_JIGGLER, (HSV){MIRYOKU_HSV_JIGGLER});
     }
 }
 

@@ -14,15 +14,14 @@ static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
      14,  19,  24,   60,  55,  50,
 };
 
-// Free (non-miryoku) LED indices -> moonlander LED index
-// Both halves: left indices first, right mirrors second (right = left + 36)
+// Toggle indicators, left half then right (see MIRYOKU_FREE_*).
 static const uint8_t free_to_led[] = {
-     4,  // MIRYOKU_FREE_CAPSLOCK    (left: col1 extra row)
-     9,  // MIRYOKU_FREE_SCROLLLOCK  (left: col3 area extra)
-    20,  // MIRYOKU_FREE_JIGGLER     (left: extra thumb key)
-    40,  // MIRYOKU_FREE_CAPSLOCK    (right mirror)
-    45,  // MIRYOKU_FREE_SCROLLLOCK  (right mirror)
-    56,  // MIRYOKU_FREE_JIGGLER     (right mirror)
+     4,      // MIRYOKU_FREE_CAPSLOCK    (left: bottom row, outer key)
+     9,      // MIRYOKU_FREE_SCROLLLOCK  (left: bottom row, second key)
+    NO_LED,  // MIRYOKU_FREE_JIGGLER     (right half only)
+    40,      // MIRYOKU_FREE_CAPSLOCK    (right: bottom row, outer key)
+    45,      // MIRYOKU_FREE_SCROLLLOCK  (right: bottom row, second key)
+    63,      // MIRYOKU_FREE_JIGGLER     (right: spare key beside M)
 };
 
 // Agent slots down the left's spare column beside the index finger, top to

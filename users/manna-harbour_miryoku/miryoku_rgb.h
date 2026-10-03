@@ -17,7 +17,8 @@
 // 30-32: K32-K34  (thumbs left)
 // 33-35: K35-K37  (thumbs right)
 
-// Indices into each keyboard's free_to_led[] array
+// Indices into each keyboard's free_to_led[] array; NO_LED leaves that
+// indicator off on that half.
 #define MIRYOKU_FREE_CAPSLOCK    0
 #define MIRYOKU_FREE_SCROLLLOCK  1
 #define MIRYOKU_FREE_JIGGLER     2
