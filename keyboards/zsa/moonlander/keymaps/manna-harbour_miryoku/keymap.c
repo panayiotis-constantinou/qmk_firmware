@@ -1,6 +1,7 @@
 #include QMK_KEYBOARD_H
 #include "miryoku_rgb.h"
 #include "herdr.h"
+#include "manna-harbour_miryoku.h"
 
 // Miryoku key index -> Moonlander LED index (36 entries).
 static const uint8_t miryoku_to_led[MIRYOKU_KEY_COUNT] = {
@@ -24,8 +25,7 @@ static const uint8_t free_to_led[] = {
     63,      // MIRYOKU_FREE_JIGGLER     (right: spare key beside M)
 };
 
-// Agent slots down the left's spare column beside the index finger, top to
-// bottom.
+// Agent slots down the left's spare column, starting on the number row.
 static const uint8_t herdr_slot_leds[HERDR_SLOT_COUNT] = {25, 26, 27, 28};
 
 static const miryoku_leds_t leds = {
@@ -37,4 +37,14 @@ static const miryoku_leds_t leds = {
     .herdr_sort       = 65, // the right's innermost number-row key
 };
 
-bool rgb_matrix_indicators_user(void) { return miryoku_rgb_indicators(&leds); }
+bool rgb_matrix_indicators_user(void) {
+    bool result = miryoku_rgb_indicators(&leds);
+    if (get_highest_layer(layer_state | default_layer_state) == U_BASE) {
+        // Override effects; preserve agent slot LED 25 and sort LED 65.
+        static const uint8_t number_row_leds[] = {0, 5, 10, 15, 20, 29, 36, 41, 46, 51, 56, 61};
+        for (uint8_t i = 0; i < ARRAY_SIZE(number_row_leds); ++i) {
+            rgb_matrix_set_color(number_row_leds[i], 0, 0, 0);
+        }
+    }
+    return result;
+}
