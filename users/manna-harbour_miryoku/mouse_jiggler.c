@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "mouse_jiggler.h"
+#include "mousekey.h"
 
 static bool     mouse_jiggler_enabled = false;
 static uint16_t mouse_jiggler_timer   = 0;
@@ -52,6 +53,8 @@ void housekeeping_task_mouse_jiggler(void) {
             mouse_jiggler_timer = timer_read();
 
             report_mouse_t report = {0};
+            // A jiggle must not release a click or drag held through mouse keys.
+            report.buttons        = mousekey_get_report().buttons;
             report.x              = MOUSE_JIGGLER_MOVEMENT * jiggle_direction;
 
             host_mouse_send(&report);

@@ -6,8 +6,8 @@
 
 #include "quantum.h"
 
-// Custom keycode for mouse jiggler toggle
-enum custom_keycodes { MJ_TOGG = SAFE_RANGE };
+// QK_USER_0 is RGB_LAYER_COLORS; keep this slot clear of the Herdr keys too.
+enum custom_keycodes { MJ_TOGG = QK_USER_18 };
 
 // Public API
 bool mouse_jiggler_is_enabled(void);
